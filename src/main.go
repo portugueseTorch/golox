@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"golox/src/utils"
 	"os"
 )
 
@@ -14,7 +15,8 @@ func HandleFileInput(filePath string) {
 		return
 	}
 
-	fmt.Println("Data:", string(file))
+	fileAsString := string(file)
+	utils.LogError(1, 9, fileAsString, "syntax error: unexpected character")
 }
 
 func HandleReplInput() {
@@ -30,7 +32,7 @@ func HandleReplInput() {
 		}
 
 		input := scanner.Text()
-		fmt.Println("Input:", input)
+		fmt.Println(input)
 	}
 }
 
