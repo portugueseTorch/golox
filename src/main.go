@@ -3,20 +3,16 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"golox/src/utils"
 	"os"
 )
 
 func HandleFileInput(filePath string) {
 	// --- load file into memory
-	file, err := os.ReadFile(filePath)
+	_, err := os.ReadFile(filePath)
 	if err != nil {
 		fmt.Println("[ERROR]:", err)
 		return
 	}
-
-	fileAsString := string(file)
-	utils.LogError(1, 9, fileAsString, "syntax error: unexpected character")
 }
 
 func HandleReplInput() {
