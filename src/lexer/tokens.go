@@ -149,31 +149,28 @@ type Token struct {
 	raw       *string
 }
 
-func ToTokenType(char byte) TokenType {
+func ToTokenType(char byte, withEqual bool) TokenType {
 	switch char {
 	case '!':
+		if withEqual {
+			return BANG_EQUAL
+		}
 		return BANG
 	case '=':
+		if withEqual {
+			return EQUAL_EQUAL
+		}
 		return EQUAL
 	case '<':
+		if withEqual {
+			return LESS_EQUAL
+		}
 		return LESS
 	case '>':
+		if withEqual {
+			return GREATER_EQUAL
+		}
 		return GREATER
-	default:
-		return INVALID
-	}
-}
-
-func ToTokenTypeWithEqual(char byte) TokenType {
-	switch char {
-	case '!':
-		return BANG_EQUAL
-	case '=':
-		return EQUAL_EQUAL
-	case '<':
-		return LESS_EQUAL
-	case '>':
-		return GREATER_EQUAL
 	default:
 		return INVALID
 	}

@@ -71,11 +71,7 @@ func (lex *Lexer) scanToken() {
 	case '*':
 		lex.appendToken(STAR, false)
 	case '!', '=', '<', '>':
-		if lex.matches('=') {
-			lex.appendToken(ToTokenTypeWithEqual(c), false)
-		} else {
-			lex.appendToken(ToTokenType(c), false)
-		}
+		lex.appendToken(ToTokenType(c, lex.matches('=')), false)
 	case '/':
 		// --- if next character is also '/', ignore everything until end of the line
 		if lex.matches('/') {
