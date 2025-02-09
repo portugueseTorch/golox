@@ -3,16 +3,32 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"golox/src/lexer"
 	"os"
 )
 
+func run(input string) {
+	lexer := lexer.NewLexer(input)
+
+	lexer.ScanTokens()
+	if lexer.HasError() {
+		return
+	}
+
+	for _, tok := range lexer.GetTokens() {
+		fmt.Println(tok)
+	}
+}
+
 func HandleFileInput(filePath string) {
 	// --- load file into memory
-	_, err := os.ReadFile(filePath)
+	file, err := os.ReadFile(filePath)
 	if err != nil {
 		fmt.Println("[ERROR]:", err)
 		return
 	}
+
+	run(string(file))
 }
 
 func HandleReplInput() {
@@ -28,7 +44,7 @@ func HandleReplInput() {
 		}
 
 		input := scanner.Text()
-		fmt.Println(input)
+		run(input)
 	}
 }
 
