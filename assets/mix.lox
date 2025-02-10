@@ -1,0 +1,8 @@
+// this should be ignored
+*+()}}{;,}.
+<
+"Hello, world!"
+<=
+"Hi, should ignore \" <- this backslash"
+>
+"Veeeeery nice backslash \\ <-, pretty cool!"
