@@ -146,7 +146,7 @@ type Token struct {
 	line int
 
 	tokenType TokenType
-	raw       *string
+	literal   *string
 }
 
 func ToTokenType(char byte, withEqual bool) TokenType {
@@ -177,8 +177,8 @@ func ToTokenType(char byte, withEqual bool) TokenType {
 }
 
 func (t Token) String() string {
-	if t.raw == nil {
+	if t.literal == nil {
 		return fmt.Sprintf("[%s] at %d:%d", t.tokenType, t.line, t.start+1)
 	}
-	return fmt.Sprintf("[%s]: \"%s\" at %d:%d", t.tokenType, *t.raw, t.line, t.start+1)
+	return fmt.Sprintf("[%s]: %s at %d:%d", t.tokenType, *t.literal, t.line, t.start+1)
 }

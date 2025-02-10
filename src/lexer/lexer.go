@@ -38,7 +38,7 @@ func (lex *Lexer) ScanTokens() {
 		lex.scanToken()
 	}
 
-	lex.appendToken(EOF, false)
+	lex.appendToken(EOF, nil)
 }
 
 // scans token and appends it to lex.tokens
@@ -51,27 +51,29 @@ func (lex *Lexer) scanToken() {
 	case '\n':
 		lex.line += 1
 	case '(':
-		lex.appendToken(LEFT_PAREN, false)
+		lex.appendToken(LEFT_PAREN, nil)
 	case ')':
-		lex.appendToken(RIGHT_PAREN, false)
+		lex.appendToken(RIGHT_PAREN, nil)
 	case '{':
-		lex.appendToken(LEFT_BRACE, false)
+		lex.appendToken(LEFT_BRACE, nil)
 	case '}':
-		lex.appendToken(RIGHT_BRACE, false)
+		lex.appendToken(RIGHT_BRACE, nil)
 	case ',':
-		lex.appendToken(COMMA, false)
+		lex.appendToken(COMMA, nil)
 	case '.':
-		lex.appendToken(DOT, false)
+		lex.appendToken(DOT, nil)
 	case '+':
-		lex.appendToken(PLUS, false)
+		lex.appendToken(PLUS, nil)
 	case '-':
-		lex.appendToken(MINUS, false)
+		lex.appendToken(MINUS, nil)
 	case ';':
-		lex.appendToken(SEMICOLON, false)
+		lex.appendToken(SEMICOLON, nil)
 	case '*':
-		lex.appendToken(STAR, false)
+		lex.appendToken(STAR, nil)
 	case '!', '=', '<', '>':
-		lex.appendToken(ToTokenType(c, lex.matches('=')), false)
+		lex.appendToken(ToTokenType(c, lex.matches('=')), nil)
+	case '"':
+		lex.buildStringToken()
 	case '/':
 		// --- if next character is also '/', ignore everything until end of the line
 		if lex.matches('/') {
@@ -79,12 +81,42 @@ func (lex *Lexer) scanToken() {
 				lex.next()
 			}
 		} else {
-			lex.appendToken(SLASH, false)
+			lex.appendToken(SLASH, nil)
 		}
 	default:
 		lex.LogError(fmt.Sprintf("unexpected token '%c'", c))
 		lex.hasError = true
 	}
+}
+
+func (lex *Lexer) buildStringToken() {
+	for !lex.isAtEnd() && lex.peek() != '"' {
+		// --- increment line
+		if lex.peek() == '\n' {
+			lex.line += 1
+		}
+
+		// --- if the current character is '\' and the next is '"', jump twice ahead
+		if lex.peek() == '\\' && lex.lookAhead() == '"' {
+			lex.next()
+		}
+
+		lex.next()
+	}
+
+	// --- if we're at the end of the file, error with unterminated string
+	if lex.isAtEnd() {
+		lex.LogError("unterminated string")
+		return
+	}
+
+	rawString := lex.input[lex.start+1 : lex.cur]
+	parsedString := ParseRawString(rawString)
+
+	lex.appendToken(STRING, &parsedString)
+
+	// --- skip last '"'
+	lex.next()
 }
 
 // returns current byte and advances cur
@@ -106,6 +138,15 @@ func (lex *Lexer) peek() byte {
 	return lex.input[lex.cur]
 }
 
+// looks ahead to the next byte withoug advancing
+func (lex *Lexer) lookAhead() byte {
+	if lex.cur+1 >= len(lex.input) {
+		return 0
+	}
+
+	return lex.input[lex.cur+1]
+}
+
 // compares the byte at position cur returning false if it does not match
 // cmp - if it matches, iterates to next position and returns true
 func (lex *Lexer) matches(cmp byte) bool {
@@ -118,20 +159,14 @@ func (lex *Lexer) matches(cmp byte) bool {
 }
 
 // appends token with literal if bool is true
-func (lex *Lexer) appendToken(tokenType TokenType, literal bool) {
-	var raw *string = nil
-	if literal {
-		tmpRaw := lex.input[lex.start : lex.cur+1]
-		raw = &tmpRaw
-	}
-
+func (lex *Lexer) appendToken(tokenType TokenType, literal *string) {
 	tok := Token{
 		start:  lex.start,
 		length: lex.cur - lex.start,
 		line:   lex.line,
 		//
 		tokenType: tokenType,
-		raw:       raw,
+		literal:   literal,
 	}
 
 	lex.tokens = append(lex.tokens, tok)
