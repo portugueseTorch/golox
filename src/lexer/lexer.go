@@ -74,8 +74,6 @@ func (lex *Lexer) scanToken() {
 		lex.appendToken(ToTokenType(c, lex.matches('=')), nil)
 	case '"':
 		lex.buildStringToken()
-	case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
-		lex.buildNumericToken()
 	case '/':
 		// --- if next character is also '/', ignore everything until end of the line
 		if lex.matches('/') {
@@ -86,8 +84,54 @@ func (lex *Lexer) scanToken() {
 			lex.appendToken(SLASH, nil)
 		}
 	default:
-		lex.LogError(fmt.Sprintf("unexpected token '%c'", c))
-		lex.hasError = true
+		if IsDigit(c) {
+			lex.buildNumericToken()
+		} else if IsAlphaNumeric(c) {
+			lex.buildIdentifierOrReservedToken()
+		} else {
+			lex.LogError(fmt.Sprintf("unexpected token '%c'", c))
+		}
+	}
+}
+
+func (lex *Lexer) buildIdentifierOrReservedToken() {
+	for !lex.isAtEnd() && IsAlphaNumeric(lex.peek()) {
+		lex.next()
+	}
+
+	rawString := lex.input[lex.start:lex.cur]
+	switch rawString {
+	case "if":
+		lex.appendToken(IF, nil)
+	case "else":
+		lex.appendToken(ELSE, nil)
+	case "true":
+		lex.appendToken(TRUE, nil)
+	case "false":
+		lex.appendToken(FALSE, nil)
+	case "nil":
+		lex.appendToken(NIL, nil)
+	case "print":
+		lex.appendToken(PRINT, nil)
+	case "return":
+		lex.appendToken(RETURN, nil)
+	case "super":
+		lex.appendToken(SUPER, nil)
+	case "this":
+		lex.appendToken(THIS, nil)
+	case "var":
+		lex.appendToken(VAR, nil)
+	case "for":
+		lex.appendToken(FOR, nil)
+	case "while":
+		lex.appendToken(WHILE, nil)
+	case "fun":
+		lex.appendToken(FUN, nil)
+	case "class":
+		lex.appendToken(CLASS, nil)
+	default:
+		rawIdentifier := lex.input[lex.start:lex.cur]
+		lex.appendToken(IDENTIFIER, &rawIdentifier)
 	}
 }
 

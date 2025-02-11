@@ -21,3 +21,11 @@ func ParseRawString(raw string) string {
 func IsDigit(c byte) bool {
 	return c >= '0' && c <= '9'
 }
+
+func IsAlpha(c byte) bool {
+	return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_'
+}
+
+func IsAlphaNumeric(c byte) bool {
+	return IsAlpha(c) || IsDigit(c)
+}
