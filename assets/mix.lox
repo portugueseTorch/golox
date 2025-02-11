@@ -1,8 +1,12 @@
 // this should be ignored
 *+()}}{;,}.
 <
-"Hello, world!"
-<=
 "Hi, should ignore \" <- this backslash"
 >
-"Veeeeery nice backslash \\ <-, pretty cool!"
+"Veeeeery nice backslash \\ <-, pretty cool!\""
+
+1337.0
+
+"Hello, world!"
+<=
+4321

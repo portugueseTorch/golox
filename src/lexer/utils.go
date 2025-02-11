@@ -17,3 +17,7 @@ func ParseRawString(raw string) string {
 
 	return string(output)
 }
+
+func IsDigit(c byte) bool {
+	return c >= '0' && c <= '9'
+}

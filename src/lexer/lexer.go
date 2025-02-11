@@ -74,6 +74,8 @@ func (lex *Lexer) scanToken() {
 		lex.appendToken(ToTokenType(c, lex.matches('=')), nil)
 	case '"':
 		lex.buildStringToken()
+	case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
+		lex.buildNumericToken()
 	case '/':
 		// --- if next character is also '/', ignore everything until end of the line
 		if lex.matches('/') {
@@ -89,6 +91,32 @@ func (lex *Lexer) scanToken() {
 	}
 }
 
+func (lex *Lexer) buildNumericToken() {
+	// --- first half of the number
+	for !lex.isAtEnd() && IsDigit(lex.peek()) {
+		lex.next()
+	}
+
+	// --- if the current char is '.' but the next is not a digit, error
+	if lex.peek() == '.' {
+		if !IsDigit(lex.peekNext()) {
+			lex.LogError("trailing '.'")
+			return
+		}
+
+		// --- advance from '.'
+		lex.next()
+
+		// --- second half of the number, if applicable
+		for !lex.isAtEnd() && IsDigit(lex.peek()) {
+			lex.next()
+		}
+	}
+
+	rawNumber := lex.input[lex.start:lex.cur]
+	lex.appendToken(NUMBER, &rawNumber)
+}
+
 func (lex *Lexer) buildStringToken() {
 	for !lex.isAtEnd() && lex.peek() != '"' {
 		// --- increment line
@@ -97,7 +125,7 @@ func (lex *Lexer) buildStringToken() {
 		}
 
 		// --- if the current character is '\' and the next is '"', jump twice ahead
-		if lex.peek() == '\\' && lex.lookAhead() == '"' {
+		if lex.peek() == '\\' && lex.peekNext() == '"' {
 			lex.next()
 		}
 
@@ -139,7 +167,7 @@ func (lex *Lexer) peek() byte {
 }
 
 // looks ahead to the next byte withoug advancing
-func (lex *Lexer) lookAhead() byte {
+func (lex *Lexer) peekNext() byte {
 	if lex.cur+1 >= len(lex.input) {
 		return 0
 	}
@@ -173,11 +201,6 @@ func (lex *Lexer) appendToken(tokenType TokenType, literal *string) {
 }
 
 func (lex *Lexer) LogError(err string) {
-	// lineAsString := strconv.Itoa(lex.line)
-	// var lineDigits int = len(lineAsString)
-	// spaces := strings.Repeat(" ", 12+lineDigits+lex.cur)
-
+	lex.hasError = true
 	fmt.Printf("[ERROR]: %s at line %d:%d\n", err, lex.line, lex.cur)
-	// fmt.Printf("   └───> %d | %s", lex.line, lex.input[lex.start:lex.cur])
-	// fmt.Printf("%s^-- error\n", spaces)
 }
