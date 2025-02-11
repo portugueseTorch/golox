@@ -1,0 +1,28 @@
+var min = 4;
+var max = 16;
+
+// testing this
+var average = (min + max) / 2;
+
+print "Hello, World!";
+print "The average is " + average;
+
+if (average >= 10) {
+  print "yes";
+} else {
+  print "no";
+}
+
+for (var a = 1; a < 10; a = a + 1) {
+  print a;
+}
+
+fun printSum(a, b) {
+  var sum = 0;
+  while (a >= b) {
+    sum = sum + a + b;
+  }
+
+  return sum;
+}
+
