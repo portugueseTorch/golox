@@ -25,13 +25,10 @@ The Visitor pattern plays well with Java, but the lack of explicit inheritance a
 <br />
 Instead, I'll opt for defining an Expr interface with just one marker method, with no operation.
 
-##### Rationale
+#### Rationale
 
-From my brief reading on Go's type system and interface representation, in memory an interface implemenation is what in Rust would be called a "fat pointer": it's essentialy a two word struct, where the first word is a pointer to the implementation information
+- From my brief reading on Go's type system and interface representation, in memory an interface implemenation is what in Rust would be called a "fat pointer": it's essentialy a two word struct, where the first word is a pointer to the implementation information
 of the interface (type information + vtable, if any methods are defined there), and the second word is either an unsafe pointer to the actual data, or a copy of the data itself (apparently the Go compiler is able to nicely optimize data locality for small values).
-<br />
-Given that Go doesn't really lend itself to inheritance and that it supports type-switching at run time, the interface approach **_without the indirection of the Visitor pattern's methods_** seems more ideomatic (and slightly more performant).
-<br />
-Having a marker method in our trait provides more type safety (an empty interface is just an `any`, afterall), and marginally better performance when resolving the types at run-time.
-<br />
-Because I don't expect to add much functionality to the AST (will likely only want to either evaluate the nodes or pretty-print them for debugging), it feels like the extensibility provided by the Visitor pattern hardly justifies the extra allocation and boilerplate for our use-case.
+- Given that Go doesn't really lend itself to inheritance and that it supports type-switching at run time, the interface approach **_without the indirection of the Visitor pattern's methods_** seems more ideomatic (and slightly more performant).
+- Having a marker method in our trait provides more type safety (an empty interface is just an `any`, afterall), and marginally better performance when resolving the types at run-time.
+- Because I don't expect to add much functionality to the AST (will likely only want to either evaluate the nodes or pretty-print them for debugging), it feels like the extensibility provided by the Visitor pattern hardly justifies the extra allocation and boilerplate for our use-case.
