@@ -14,11 +14,25 @@ type Binary struct {
 	Right    Expr
 }
 
+func NewBinary(left Expr, op lexer.Token, right Expr) *Binary {
+	return &Binary{
+		Left:     left,
+		Operator: op,
+		Right:    right,
+	}
+}
+
 func (t *Binary) marker() {}
 
 // --- Grouping expression
 type Grouping struct {
 	Expression Expr
+}
+
+func NewGrouping(expr Expr) *Grouping {
+	return &Grouping{
+		Expression: expr,
+	}
 }
 
 func (t *Grouping) marker() {}
@@ -28,12 +42,25 @@ type Literal struct {
 	Value any
 }
 
+func NewLiteral(value any) *Literal {
+	return &Literal{
+		Value: value,
+	}
+}
+
 func (t *Literal) marker() {}
 
 // --- Unary expression: !true | -1337
 type Unary struct {
 	Operator   lexer.Token
 	Expression Expr
+}
+
+func NewUnary(op lexer.Token, expr Expr) *Unary {
+	return &Unary{
+		Operator:   op,
+		Expression: expr,
+	}
 }
 
 func (t *Unary) marker() {}

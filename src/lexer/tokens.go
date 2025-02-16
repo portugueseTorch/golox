@@ -187,6 +187,14 @@ func (t Token) Type() string {
 	return t.tokenType.String()
 }
 
+func (t Token) TokenType() TokenType {
+	return t.tokenType
+}
+
+func (t Token) Literal() *string {
+	return t.literal
+}
+
 func NewToken(tokenType TokenType) Token {
 	return Token{
 		start:     0,
