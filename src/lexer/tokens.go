@@ -195,6 +195,10 @@ func (t Token) Literal() *string {
 	return t.literal
 }
 
+func (t Token) Line() int {
+	return t.line
+}
+
 func NewToken(tokenType TokenType) Token {
 	return Token{
 		start:     0,
