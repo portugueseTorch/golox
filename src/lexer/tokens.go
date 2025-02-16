@@ -182,3 +182,17 @@ func (t Token) String() string {
 	}
 	return fmt.Sprintf("[%s]: %s at %d:%d", t.tokenType, *t.literal, t.line, t.start+1)
 }
+
+func (t Token) Type() string {
+	return t.tokenType.String()
+}
+
+func NewToken(tokenType TokenType) Token {
+	return Token{
+		start:     0,
+		length:    0,
+		line:      0,
+		tokenType: tokenType,
+		literal:   nil,
+	}
+}

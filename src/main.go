@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"golox/src/ast"
 	"golox/src/lexer"
 	"os"
 )
@@ -49,13 +50,36 @@ func HandleReplInput() {
 }
 
 func main() {
-	args := os.Args
+	// args := os.Args
+	//
+	// if len(args) > 2 {
+	// 	panic("[ERROR]: Usage: golox [file_path]")
+	// } else if len(args) == 2 {
+	// 	HandleFileInput(args[1])
+	// } else {
+	// 	HandleReplInput()
+	// }
 
-	if len(args) > 2 {
-		panic("[ERROR]: Usage: golox [file_path]")
-	} else if len(args) == 2 {
-		HandleFileInput(args[1])
-	} else {
-		HandleReplInput()
+	expression := &ast.Binary{
+		Left: &ast.Unary{
+			Operator: lexer.NewToken(lexer.MINUS),
+			Expression: &ast.Literal{
+				Value: 123,
+			},
+		},
+		Operator: lexer.NewToken(lexer.STAR),
+		Right: &ast.Grouping{
+			Expression: &ast.Binary{
+				Left: &ast.Literal{
+					Value: 45.32,
+				},
+				Operator: lexer.NewToken(lexer.SLASH),
+				Right: &ast.Literal{
+					Value: 0.86,
+				},
+			},
+		},
 	}
+
+	ast.PrintAST(expression)
 }
