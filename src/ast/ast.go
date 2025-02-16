@@ -9,31 +9,31 @@ type Expr interface {
 
 // --- Binary expression: 1 + 2
 type Binary struct {
-	left     Expr
-	operator lexer.Token
-	right    Expr
+	Left     Expr
+	Operator lexer.Token
+	Right    Expr
 }
 
 func (t *Binary) marker() {}
 
 // --- Grouping expression
 type Grouping struct {
-	expression Expr
+	Expression Expr
 }
 
 func (t *Grouping) marker() {}
 
 // --- Literal expression: "hello"
 type Literal struct {
-	value any
+	Value any
 }
 
 func (t *Literal) marker() {}
 
 // --- Unary expression: !true | -1337
 type Unary struct {
-	operator   lexer.TokenType
-	expression Expr
+	Operator   lexer.Token
+	Expression Expr
 }
 
 func (t *Unary) marker() {}
