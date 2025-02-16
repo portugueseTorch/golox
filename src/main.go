@@ -5,20 +5,25 @@ import (
 	"fmt"
 	"golox/src/ast"
 	"golox/src/lexer"
+	"golox/src/parser"
 	"os"
 )
 
 func run(input string) {
 	lexer := lexer.NewLexer(input)
-
 	lexer.ScanTokens()
 	if lexer.HasError() {
 		return
 	}
 
-	for _, tok := range lexer.GetTokens() {
-		fmt.Println(tok)
+	parser := parser.NewParser(lexer.GetTokens())
+	parsed, err := parser.Parse()
+	if err != nil {
+		fmt.Printf("%s", err)
+		return
 	}
+
+	ast.PrintAST(parsed)
 }
 
 func HandleFileInput(filePath string) {
@@ -50,36 +55,13 @@ func HandleReplInput() {
 }
 
 func main() {
-	// args := os.Args
-	//
-	// if len(args) > 2 {
-	// 	panic("[ERROR]: Usage: golox [file_path]")
-	// } else if len(args) == 2 {
-	// 	HandleFileInput(args[1])
-	// } else {
-	// 	HandleReplInput()
-	// }
+	args := os.Args
 
-	expression := &ast.Binary{
-		Left: &ast.Unary{
-			Operator: lexer.NewToken(lexer.MINUS),
-			Expression: &ast.Literal{
-				Value: 123,
-			},
-		},
-		Operator: lexer.NewToken(lexer.STAR),
-		Right: &ast.Grouping{
-			Expression: &ast.Binary{
-				Left: &ast.Literal{
-					Value: 45.32,
-				},
-				Operator: lexer.NewToken(lexer.SLASH),
-				Right: &ast.Literal{
-					Value: 0.86,
-				},
-			},
-		},
+	if len(args) > 2 {
+		panic("[ERROR]: Usage: golox [file_path]")
+	} else if len(args) == 2 {
+		HandleFileInput(args[1])
+	} else {
+		HandleReplInput()
 	}
-
-	ast.PrintAST(expression)
 }

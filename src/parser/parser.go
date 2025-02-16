@@ -30,6 +30,10 @@ func NewParser(tokens []lexer.Token) Parser {
 	}
 }
 
+func (parser *Parser) Parse() (ast.Expr, error) {
+	return parser.expression()
+}
+
 func (parser *Parser) expression() (ast.Expr, error) {
 	return parser.equality()
 }
