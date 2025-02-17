@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"golox/src/ast"
+	"golox/src/executor"
 	"golox/src/lexer"
 	"golox/src/parser"
 	"os"
@@ -23,7 +23,9 @@ func run(input string) {
 		return
 	}
 
-	ast.PrintAST(parsed)
+	ret := executor.ExecuteAST(parsed)
+
+	fmt.Println(ret)
 }
 
 func HandleFileInput(filePath string) {

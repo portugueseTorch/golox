@@ -94,3 +94,15 @@ func gte(left, right any) bool {
 
 	return l >= r
 }
+
+func equal(left, right any) bool {
+	// both null
+	if left == nil && right == nil {
+		return true
+	}
+	if left == nil {
+		return false
+	}
+
+	return left == right
+}

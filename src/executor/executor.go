@@ -6,12 +6,23 @@ import (
 )
 
 // main executor function
-func ExecuteAST(expr ast.Expr) {
-	ret := exec(expr)
+func ExecuteAST(expr ast.Expr) any {
+	return exec(expr)
 }
 
 func exec(expr ast.Expr) any {
-	return true
+	switch e := expr.(type) {
+	case *ast.Binary:
+		return execBinary(*e)
+	case *ast.Unary:
+		return execUnary(*e)
+	case *ast.Grouping:
+		return execGrouping(*e)
+	case *ast.Literal:
+		return execLiteral(*e)
+	}
+
+	panic("unreachable")
 }
 
 func execBinary(expr ast.Binary) any {
@@ -38,6 +49,10 @@ func execBinary(expr ast.Binary) any {
 		return gt(left, right)
 	case lexer.GREATER_EQUAL:
 		return gte(left, right)
+	case lexer.EQUAL_EQUAL:
+		return equal(left, right)
+	case lexer.BANG_EQUAL:
+		return !equal(left, right)
 	}
 
 	panic("unreachable")
