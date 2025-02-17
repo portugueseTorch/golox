@@ -14,6 +14,35 @@ func exec(expr ast.Expr) any {
 	return true
 }
 
+func execBinary(expr ast.Binary) any {
+	left := exec(expr.Left)
+	right := exec(expr.Right)
+
+	switch expr.Operator.TokenType() {
+	// arithmetic operators
+	case lexer.PLUS:
+		return plus(left, right)
+	case lexer.MINUS:
+		return minus(left, right)
+	case lexer.STAR:
+		return multiply(left, right)
+	case lexer.SLASH:
+		return divide(left, right)
+
+	// comparison operators
+	case lexer.LESS:
+		return lt(left, right)
+	case lexer.LESS_EQUAL:
+		return lte(left, right)
+	case lexer.GREATER:
+		return gt(left, right)
+	case lexer.GREATER_EQUAL:
+		return gte(left, right)
+	}
+
+	panic("unreachable")
+}
+
 func execLiteral(expr ast.Literal) any {
 	return expr.Value
 }
@@ -38,8 +67,7 @@ func execUnary(expr ast.Unary) any {
 		return !isTruthy(child)
 	}
 
-	// TODO: graceful error handling
-	panic("UNREACHEABLE")
+	panic("unreachable")
 }
 
 // consider falsy to be only <nil> or false
