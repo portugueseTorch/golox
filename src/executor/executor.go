@@ -37,28 +37,17 @@ func execBinary(expr ast.Binary) (any, error) {
 
 	switch expr.Operator.TokenType() {
 	// arithmetic operators
-	case lexer.PLUS:
-		return plus(left, right)
-	case lexer.MINUS:
-		return minus(left, right)
-	case lexer.STAR:
-		return multiply(left, right)
-	case lexer.SLASH:
-		return divide(left, right)
+	case lexer.MINUS, lexer.STAR, lexer.SLASH:
+		return handleArithmetic(expr.Operator, left, right)
 
 	// comparison operators
-	case lexer.LESS:
-		return lt(left, right)
-	case lexer.LESS_EQUAL:
-		return lte(left, right)
-	case lexer.GREATER:
-		return gt(left, right)
-	case lexer.GREATER_EQUAL:
-		return gte(left, right)
-	case lexer.EQUAL_EQUAL:
-		return equal(left, right)
-	case lexer.BANG_EQUAL:
-		return !equal(left, right)
+	case lexer.LESS, lexer.LESS_EQUAL, lexer.GREATER, lexer.GREATER_EQUAL, lexer.EQUAL_EQUAL, lexer.BANG_EQUAL:
+		return handleComparison(expr.Operator, left, right)
+
+		// special case
+	case lexer.PLUS:
+		return handlePlus(expr.Operator, left, right)
+
 	}
 
 	panic("unreachable")

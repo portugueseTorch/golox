@@ -1,108 +1,80 @@
 package executor
 
-// FIXME: this deserves some refactoring, should probably expose just on arithmetic and one comparison handler
-func anyAsFloat(left, right any) (float64, float64, bool) {
-	l, leftOk := left.(float64)
-	r, rightOk := right.(float64)
+import "golox/src/lexer"
 
-	if !leftOk || !rightOk {
-		return 0, 0, false
+func handleArithmetic(op lexer.Token, left, right any) (any, error) {
+	l, l_ok := left.(float64)
+	if !l_ok {
+		return nil, NewRuntimeError(op, "left side of arithmetic operation is not a number")
 	}
 
-	return l, r, true
-}
+	r, r_ok := right.(float64)
+	if !r_ok {
+		return nil, NewRuntimeError(op, "right side of arithmetic operation is not a number")
+	}
 
-// attempts to add lhs to rhs
-func plus(left, right any) any {
-	// add numbers
-	switch l := left.(type) {
-	case float64:
-		// if right is not a number, error
-		if r, ok := right.(float64); ok {
-			return l + r
+	switch op.TokenType() {
+	case lexer.MINUS:
+		return l - r, nil
+	case lexer.STAR:
+		return l * r, nil
+	case lexer.SLASH:
+		if r == 0 {
+			return nil, NewRuntimeError(op, "right side of division can not be is zero")
 		}
-
-	case string:
-		// if right is not a string, error
-		if r, ok := right.(string); ok {
-			return l + r
-		}
+		return l / r, nil
 	}
 
 	panic("unreachable")
 }
 
-func minus(left, right any) any {
-	l, r, ok := anyAsFloat(left, right)
-	if !ok {
-		panic("unreachable")
+func handleComparison(op lexer.Token, left, right any) (any, error) {
+	l, l_ok := left.(float64)
+	if !l_ok {
+		return nil, NewRuntimeError(op, "left side of comparison operation is not a number")
 	}
 
-	return l - r
+	r, r_ok := right.(float64)
+	if !r_ok {
+		return nil, NewRuntimeError(op, "right side of comparison operation is not a number")
+	}
+
+	switch op.TokenType() {
+	case lexer.LESS:
+		return l < r, nil
+	case lexer.LESS_EQUAL:
+		return l <= r, nil
+	case lexer.GREATER:
+		return l > r, nil
+	case lexer.GREATER_EQUAL:
+		return l >= r, nil
+	case lexer.EQUAL_EQUAL:
+		return l == r, nil
+	case lexer.BANG_EQUAL:
+		return l != r, nil
+	}
+
+	panic("unreachable")
 }
 
-func multiply(left, right any) any {
-	l, r, ok := anyAsFloat(left, right)
-	if !ok {
-		panic("unreachable")
+func handlePlus(op lexer.Token, left, right any) (any, error) {
+	// add numbers
+	switch l := left.(type) {
+	case float64:
+		// if right is not a number, error
+		if r, ok := right.(float64); ok {
+			return l + r, nil
+		}
+
+	case string:
+		// if right is not a string, error
+		if r, ok := right.(string); ok {
+			return l + r, nil
+		}
+
+	default:
+		return nil, NewRuntimeError(op, "left side of addition must either be a number or a string")
 	}
 
-	return l * r
-}
-
-func divide(left, right any) any {
-	l, r, ok := anyAsFloat(left, right)
-	if !ok || r == 0 {
-		panic("unreachable")
-	}
-
-	return l / r
-}
-
-func lt(left, right any) bool {
-	l, r, ok := anyAsFloat(left, right)
-	if !ok {
-		panic("unreachable")
-	}
-
-	return l < r
-}
-
-func lte(left, right any) bool {
-	l, r, ok := anyAsFloat(left, right)
-	if !ok {
-		panic("unreachable")
-	}
-
-	return l <= r
-}
-
-func gt(left, right any) bool {
-	l, r, ok := anyAsFloat(left, right)
-	if !ok {
-		panic("unreachable")
-	}
-
-	return l > r
-}
-
-func gte(left, right any) bool {
-	l, r, ok := anyAsFloat(left, right)
-	if !ok {
-		panic("unreachable")
-	}
-
-	return l >= r
-}
-
-func equal(left, right any) bool {
-	// both null
-	if left == nil && right == nil {
-		return true
-	}
-	if left == nil {
-		return false
-	}
-
-	return left == right
+	return nil, NewRuntimeError(op, "right side of addition must either be a number or a string")
 }

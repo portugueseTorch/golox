@@ -9,23 +9,27 @@ import (
 	"os"
 )
 
-func run(input string) {
+func run(input string) (any, error) {
 	lexer := lexer.NewLexer(input)
 	lexer.ScanTokens()
 	if lexer.HasError() {
-		return
+		return nil, nil
 	}
 
 	parser := parser.NewParser(lexer.GetTokens())
 	parsed, err := parser.Parse()
 	if err != nil {
 		fmt.Printf("%s", err)
-		return
+		return nil, nil
 	}
 
-	ret := executor.ExecuteAST(parsed)
+	ret, err := executor.ExecuteAST(parsed)
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil, err
+	}
 
-	fmt.Println(ret)
+	return ret, nil
 }
 
 func HandleFileInput(filePath string) {
@@ -36,7 +40,10 @@ func HandleFileInput(filePath string) {
 		return
 	}
 
-	run(string(file))
+	_, runtime_err := run(string(file))
+	if runtime_err != nil {
+		os.Exit(70)
+	}
 }
 
 func HandleReplInput() {
