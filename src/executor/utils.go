@@ -1,6 +1,8 @@
 package executor
 
-import "golox/src/lexer"
+import (
+	"golox/src/lexer"
+)
 
 func handleArithmetic(op lexer.Token, left, right any) (any, error) {
 	l, l_ok := left.(float64)
@@ -58,7 +60,6 @@ func handleComparison(op lexer.Token, left, right any) (any, error) {
 }
 
 func handlePlus(op lexer.Token, left, right any) (any, error) {
-	// add numbers
 	switch l := left.(type) {
 	case float64:
 		// if right is not a number, error
@@ -66,10 +67,10 @@ func handlePlus(op lexer.Token, left, right any) (any, error) {
 			return l + r, nil
 		}
 
-	case string:
+	case *string:
 		// if right is not a string, error
-		if r, ok := right.(string); ok {
-			return l + r, nil
+		if r, ok := right.(*string); ok {
+			return *l + *r, nil
 		}
 
 	default:

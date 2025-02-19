@@ -29,6 +29,8 @@ func run(input string) (any, error) {
 		return nil, err
 	}
 
+	fmt.Println(ret)
+
 	return ret, nil
 }
 

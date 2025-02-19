@@ -18,5 +18,5 @@ func NewRuntimeError(token lexer.Token, msg string) RuntimeError {
 }
 
 func (err RuntimeError) Error() string {
-	return fmt.Sprintf("[ERROR]: runtime error at line %d: %s\n", err.Token.Line(), err.Msg)
+	return fmt.Sprintf("[ERROR]: runtime error at line %d: %s", err.Token.Line(), err.Msg)
 }
