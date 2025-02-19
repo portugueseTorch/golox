@@ -41,10 +41,14 @@ func execBinary(expr ast.Binary) (any, error) {
 		return handleArithmetic(expr.Operator, left, right)
 
 	// comparison operators
-	case lexer.LESS, lexer.LESS_EQUAL, lexer.GREATER, lexer.GREATER_EQUAL, lexer.EQUAL_EQUAL, lexer.BANG_EQUAL:
+	case lexer.LESS, lexer.LESS_EQUAL, lexer.GREATER, lexer.GREATER_EQUAL:
 		return handleComparison(expr.Operator, left, right)
 
-		// special case
+	// equality operators
+	case lexer.EQUAL_EQUAL, lexer.BANG_EQUAL:
+		return handleEquality(expr.Operator, left, right)
+
+	// special case
 	case lexer.PLUS:
 		return handlePlus(expr.Operator, left, right)
 

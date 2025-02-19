@@ -50,13 +50,34 @@ func handleComparison(op lexer.Token, left, right any) (any, error) {
 		return l > r, nil
 	case lexer.GREATER_EQUAL:
 		return l >= r, nil
-	case lexer.EQUAL_EQUAL:
-		return l == r, nil
-	case lexer.BANG_EQUAL:
-		return l != r, nil
 	}
 
 	panic("unreachable")
+}
+
+func handleEquality(op lexer.Token, left, right any) (any, error) {
+	switch l := left.(type) {
+	case bool:
+		if r, ok := right.(bool); ok {
+			switch op.TokenType() {
+			case lexer.EQUAL_EQUAL:
+				return l == r, nil
+			case lexer.BANG_EQUAL:
+				return l != r, nil
+			}
+		}
+	case float64:
+		if r, ok := right.(float64); ok {
+			switch op.TokenType() {
+			case lexer.EQUAL_EQUAL:
+				return l == r, nil
+			case lexer.BANG_EQUAL:
+				return l != r, nil
+			}
+		}
+	}
+
+	return nil, NewRuntimeError(op, "sides of equality operation need to be both booleans or numbers")
 }
 
 func handlePlus(op lexer.Token, left, right any) (any, error) {
