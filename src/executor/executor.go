@@ -6,11 +6,11 @@ import (
 )
 
 // main executor function
-func ExecuteAST(expr ast.Expr) any {
+func ExecuteAST(expr ast.Expr) (any, error) {
 	return exec(expr)
 }
 
-func exec(expr ast.Expr) any {
+func exec(expr ast.Expr) (any, error) {
 	switch e := expr.(type) {
 	case *ast.Binary:
 		return execBinary(*e)
@@ -25,9 +25,15 @@ func exec(expr ast.Expr) any {
 	panic("unreachable")
 }
 
-func execBinary(expr ast.Binary) any {
-	left := exec(expr.Left)
-	right := exec(expr.Right)
+func execBinary(expr ast.Binary) (any, error) {
+	left, left_err := exec(expr.Left)
+	if left_err != nil {
+		return nil, left_err
+	}
+	right, right_err := exec(expr.Right)
+	if right_err != nil {
+		return nil, right_err
+	}
 
 	switch expr.Operator.TokenType() {
 	// arithmetic operators
@@ -58,28 +64,31 @@ func execBinary(expr ast.Binary) any {
 	panic("unreachable")
 }
 
-func execLiteral(expr ast.Literal) any {
-	return expr.Value
+func execLiteral(expr ast.Literal) (any, error) {
+	return expr.Value, nil
 }
 
-func execGrouping(expr ast.Grouping) any {
+func execGrouping(expr ast.Grouping) (any, error) {
 	return exec(expr.Expression)
 }
 
-func execUnary(expr ast.Unary) any {
-	child := exec(expr.Expression)
+func execUnary(expr ast.Unary) (any, error) {
+	child, child_err := exec(expr.Expression)
+	if child_err != nil {
+		return nil, child_err
+	}
 
 	switch expr.Operator.TokenType() {
 	case lexer.MINUS:
 		// convert expression to float and invert
 		exprAsFloat, ok := child.(float64)
 		if !ok {
-			panic("TODO: graceful error handling")
+			return nil, NewRuntimeError(expr.Operator, "unary operator should be a number")
 		}
+		return -exprAsFloat, nil
 
-		return -exprAsFloat
 	case lexer.BANG:
-		return !isTruthy(child)
+		return !isTruthy(child), nil
 	}
 
 	panic("unreachable")
