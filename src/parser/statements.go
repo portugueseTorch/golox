@@ -23,7 +23,7 @@ func (parser *Parser) printStatement() (ast.Stmt, error) {
 
 	// if the next token is not a semicolon, this is an invalid expression
 	if !parser.matches(lexer.SEMICOLON) {
-		return nil, NewParsingError(parser.peek(), "invalid token: expected ';' to finish statement")
+		return nil, NewParsingError(parser.peek(), "invalid token: expected ';'")
 	}
 
 	return ast.NewPrintStatement(expr), nil
@@ -37,7 +37,7 @@ func (parser *Parser) expressionStatement() (ast.Stmt, error) {
 
 	// if the next token is not a semicolon, this is an invalid expression
 	if !parser.matches(lexer.SEMICOLON) {
-		return nil, NewParsingError(parser.peek(), "invalid token: expected ';' to finish statement")
+		return nil, NewParsingError(parser.peek(), "invalid token: expected ';'")
 	}
 
 	return ast.NewExpressionStatement(expr), nil
