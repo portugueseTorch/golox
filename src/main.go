@@ -7,7 +7,21 @@ import (
 	"golox/src/lexer"
 	"golox/src/parser"
 	"os"
+	"strconv"
 )
+
+func stringify(result any) string {
+	switch t := result.(type) {
+	case *string:
+		return *t
+	case float64:
+		return strconv.FormatFloat(t, 'f', -1, 64)
+	case string:
+		return t
+	}
+
+	return fmt.Sprint(result)
+}
 
 func run(input string) (any, error) {
 	lexer := lexer.NewLexer(input)
@@ -29,7 +43,7 @@ func run(input string) (any, error) {
 		return nil, err
 	}
 
-	fmt.Println(ret)
+	fmt.Println(stringify(ret))
 
 	return ret, nil
 }
