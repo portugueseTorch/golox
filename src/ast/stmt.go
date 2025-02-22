@@ -1,5 +1,7 @@
 package ast
 
+import "golox/src/lexer"
+
 type Stmt interface {
 	stmtMarker()
 }
@@ -29,3 +31,19 @@ func NewPrintStatement(expr Expr) *PrintStatement {
 }
 
 func (t *PrintStatement) stmtMarker() {}
+
+// variable statement
+type VariableStatement struct {
+	Name lexer.Token
+	// nil if no initializer exists
+	Initializer *Expr
+}
+
+func NewVariableStatement(name lexer.Token, init *Expr) *VariableStatement {
+	return &VariableStatement{
+		Name:        name,
+		Initializer: init,
+	}
+}
+
+func (t *VariableStatement) stmtMarker() {}

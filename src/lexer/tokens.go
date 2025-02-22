@@ -57,75 +57,75 @@ func (t TokenType) String() string {
 	case EOF:
 		return "EOF"
 	case LEFT_PAREN:
-		return "LEFT_PAREN"
+		return "("
 	case RIGHT_PAREN:
-		return "RIGHT_PAREN"
+		return ")"
 	case LEFT_BRACE:
-		return "LEFT_BRACE"
+		return "{"
 	case RIGHT_BRACE:
-		return "RIGHT_BRACE"
+		return "}"
 	case COMMA:
-		return "COMMA"
+		return ","
 	case DOT:
-		return "DOT"
+		return "."
 	case MINUS:
-		return "MINUS"
+		return "-"
 	case PLUS:
-		return "PLUS"
+		return "+"
 	case SEMICOLON:
-		return "SEMICOLON"
+		return ";"
 	case SLASH:
-		return "SLASH"
+		return "/"
 	case STAR:
-		return "STAR"
+		return "*"
 	case BANG:
-		return "BANG"
+		return "!"
 	case BANG_EQUAL:
-		return "BANG_EQUAL"
+		return "!="
 	case EQUAL:
-		return "EQUAL"
+		return "="
 	case EQUAL_EQUAL:
-		return "EQUAL_EQUAL"
+		return "=="
 	case GREATER:
-		return "GREATER"
+		return ">"
 	case GREATER_EQUAL:
-		return "GREATER_EQUAL"
+		return ">="
 	case LESS:
-		return "LESS"
+		return "<"
 	case LESS_EQUAL:
-		return "LESS_EQUAL"
+		return "<="
 	case AND:
-		return "AND"
+		return "&&"
 	case OR:
-		return "OR"
+		return "||"
 	case IF:
-		return "IF"
+		return "if"
 	case ELSE:
-		return "ELSE"
+		return "else"
 	case TRUE:
-		return "TRUE"
+		return "true"
 	case FALSE:
-		return "FALSE"
+		return "false"
 	case NIL:
-		return "NIL"
+		return "nil"
 	case PRINT:
-		return "PRINT"
+		return "print"
 	case RETURN:
-		return "RETURN"
+		return "return"
 	case SUPER:
-		return "SUPER"
+		return "super"
 	case THIS:
-		return "THIS"
+		return "this"
 	case VAR:
-		return "VAR"
+		return "var"
 	case FOR:
-		return "FOR"
+		return "for"
 	case WHILE:
-		return "WHILE"
+		return "while"
 	case FUN:
-		return "FUN"
+		return "fun"
 	case CLASS:
-		return "CLASS"
+		return "class"
 	case IDENTIFIER:
 		return "IDENTIFIER"
 	case STRING:

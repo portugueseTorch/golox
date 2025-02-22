@@ -21,7 +21,7 @@ func (parser *Parser) Parse() ([]ast.Stmt, error) {
 	stmtList := make([]ast.Stmt, 0)
 
 	for !parser.isAtEnd() {
-		stmt, err := parser.statement()
+		stmt, err := parser.declaration()
 		if err != nil {
 			return nil, err
 		}
