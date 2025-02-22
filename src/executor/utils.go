@@ -88,10 +88,10 @@ func handlePlus(op lexer.Token, left, right any) (any, error) {
 			return l + r, nil
 		}
 
-	case *string:
+	case string:
 		// if right is not a string, error
-		if r, ok := right.(*string); ok {
-			return *l + *r, nil
+		if r, ok := right.(string); ok {
+			return l + r, nil
 		}
 
 	default:

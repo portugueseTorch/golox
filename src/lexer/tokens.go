@@ -191,8 +191,8 @@ func (t Token) TokenType() TokenType {
 	return t.tokenType
 }
 
-func (t Token) Literal() *string {
-	return t.literal
+func (t Token) Literal() string {
+	return *t.literal
 }
 
 func (t Token) Line() int {

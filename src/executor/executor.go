@@ -1,16 +1,56 @@
 package executor
 
 import (
+	"fmt"
 	"golox/src/ast"
-	"golox/src/lexer"
+	"strconv"
 )
 
 // main executor function
-func ExecuteAST(expr ast.Expr) (any, error) {
-	return exec(expr)
+func Execute(stmt []ast.Stmt) (any, error) {
+	for _, s := range stmt {
+		_, err := execStatement(s)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return nil, nil
 }
 
-func exec(expr ast.Expr) (any, error) {
+func execStatement(stmt ast.Stmt) (any, error) {
+	switch s := stmt.(type) {
+	case *ast.ExpressionStatement:
+		return execExpressionStatement(s)
+	case *ast.PrintStatement:
+		return execPrintStatement(s)
+	}
+
+	panic("unimplemented statement type")
+}
+
+func execExpressionStatement(s *ast.ExpressionStatement) (any, error) {
+	_, err := execExpr(s.Expression)
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
+}
+
+func execPrintStatement(s *ast.PrintStatement) (any, error) {
+	expr, err := execExpr(s.Expression)
+	if err != nil {
+		return nil, err
+	}
+
+	// --- print with stringify
+	fmt.Println(Stringify(expr))
+
+	return nil, nil
+}
+
+func execExpr(expr ast.Expr) (any, error) {
 	switch e := expr.(type) {
 	case *ast.Binary:
 		return execBinary(*e)
@@ -25,78 +65,15 @@ func exec(expr ast.Expr) (any, error) {
 	panic("unreachable")
 }
 
-func execBinary(expr ast.Binary) (any, error) {
-	left, left_err := exec(expr.Left)
-	if left_err != nil {
-		return nil, left_err
-	}
-	right, right_err := exec(expr.Right)
-	if right_err != nil {
-		return nil, right_err
-	}
-
-	switch expr.Operator.TokenType() {
-	// arithmetic operators
-	case lexer.MINUS, lexer.STAR, lexer.SLASH:
-		return handleArithmetic(expr.Operator, left, right)
-
-	// comparison operators
-	case lexer.LESS, lexer.LESS_EQUAL, lexer.GREATER, lexer.GREATER_EQUAL:
-		return handleComparison(expr.Operator, left, right)
-
-	// equality operators
-	case lexer.EQUAL_EQUAL, lexer.BANG_EQUAL:
-		return handleEquality(expr.Operator, left, right)
-
-	// special case
-	case lexer.PLUS:
-		return handlePlus(expr.Operator, left, right)
-
+func Stringify(result any) string {
+	switch t := result.(type) {
+	case *string:
+		return *t
+	case float64:
+		return strconv.FormatFloat(t, 'f', -1, 64)
+	case string:
+		return t
 	}
 
-	panic("unreachable")
-}
-
-func execLiteral(expr ast.Literal) (any, error) {
-	return expr.Value, nil
-}
-
-func execGrouping(expr ast.Grouping) (any, error) {
-	return exec(expr.Expression)
-}
-
-func execUnary(expr ast.Unary) (any, error) {
-	child, child_err := exec(expr.Expression)
-	if child_err != nil {
-		return nil, child_err
-	}
-
-	switch expr.Operator.TokenType() {
-	case lexer.MINUS:
-		// convert expression to float and invert
-		exprAsFloat, ok := child.(float64)
-		if !ok {
-			return nil, NewRuntimeError(expr.Operator, "unary operator should be a number")
-		}
-		return -exprAsFloat, nil
-
-	case lexer.BANG:
-		return !isTruthy(child), nil
-	}
-
-	panic("unreachable")
-}
-
-// consider falsy to be only <nil> or false
-func isTruthy(val any) bool {
-	if val == nil {
-		return false
-	}
-
-	valAsBool, ok := val.(bool)
-	if ok {
-		return valAsBool
-	}
-
-	return true
+	return fmt.Sprint(result)
 }
