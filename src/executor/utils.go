@@ -2,6 +2,7 @@ package executor
 
 import (
 	"golox/src/lexer"
+	"strconv"
 )
 
 func handleArithmetic(op lexer.Token, left, right any) (any, error) {
@@ -92,6 +93,16 @@ func handlePlus(op lexer.Token, left, right any) (any, error) {
 		// if right is not a string, error
 		if r, ok := right.(string); ok {
 			return l + r, nil
+		}
+
+		// if right is a number, attempt to convert it to a float
+		switch r := right.(type) {
+		case int:
+			rightAsString := strconv.Itoa(r)
+			return l + rightAsString, nil
+		case float64:
+			rightAsFloat := strconv.FormatFloat(r, 'f', -1, 64)
+			return l + rightAsFloat, nil
 		}
 
 	default:
