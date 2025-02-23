@@ -1,16 +1,17 @@
 package executor
 
 import (
+	"fmt"
 	"golox/src/ast"
 	"golox/src/lexer"
 )
 
-func execBinary(expr ast.Binary) (any, error) {
-	left, left_err := execExpr(expr.Left)
+func (exec *Executor) execBinary(expr ast.Binary) (any, error) {
+	left, left_err := exec.execExpr(expr.Left)
 	if left_err != nil {
 		return nil, left_err
 	}
-	right, right_err := execExpr(expr.Right)
+	right, right_err := exec.execExpr(expr.Right)
 	if right_err != nil {
 		return nil, right_err
 	}
@@ -37,16 +38,16 @@ func execBinary(expr ast.Binary) (any, error) {
 	panic("unreachable")
 }
 
-func execLiteral(expr ast.Literal) (any, error) {
+func (exec *Executor) execLiteral(expr ast.Literal) (any, error) {
 	return expr.Value, nil
 }
 
-func execGrouping(expr ast.Grouping) (any, error) {
-	return execExpr(expr.Expression)
+func (exec *Executor) execGrouping(expr ast.Grouping) (any, error) {
+	return exec.execExpr(expr.Expression)
 }
 
-func execUnary(expr ast.Unary) (any, error) {
-	child, child_err := execExpr(expr.Expression)
+func (exec *Executor) execUnary(expr ast.Unary) (any, error) {
+	child, child_err := exec.execExpr(expr.Expression)
 	if child_err != nil {
 		return nil, child_err
 	}
@@ -65,6 +66,15 @@ func execUnary(expr ast.Unary) (any, error) {
 	}
 
 	panic("unreachable")
+}
+
+func (exec *Executor) execVariable(expr ast.Variable) (any, error) {
+	val, ok := exec.env.Get(expr.Name.Literal())
+	if !ok {
+		return nil, NewRuntimeError(expr.Name, fmt.Sprintf("undefined variable '%s'", expr.Name.Literal()))
+	}
+
+	return val, nil
 }
 
 // consider falsy to be only <nil> or false

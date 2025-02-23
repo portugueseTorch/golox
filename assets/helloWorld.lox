@@ -1,4 +1,3 @@
-// Hello, world!
-"Hello, world!"
-"Hi, should ignore \" <- this backslash"
-"Veeeeery nice backslash \\ <-, pretty cool!"
+var myVar = 42;
+
+print myVar / 2;

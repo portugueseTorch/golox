@@ -64,3 +64,16 @@ func NewUnary(op lexer.Token, expr Expr) *Unary {
 }
 
 func (t *Unary) marker() {}
+
+// --- Variable node
+type Variable struct {
+	Name lexer.Token
+}
+
+func NewVariable(name lexer.Token) *Variable {
+	return &Variable{
+		Name: name,
+	}
+}
+
+func (t *Variable) marker() {}

@@ -23,7 +23,8 @@ func run(input string) (any, error) {
 		return nil, nil
 	}
 
-	_, err = executor.Execute(parsed)
+	executor := executor.NewExecutor(parsed)
+	_, err = executor.Execute()
 	if err != nil {
 		fmt.Println(err.Error())
 		return nil, err

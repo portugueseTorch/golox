@@ -3,13 +3,26 @@ package executor
 import (
 	"fmt"
 	"golox/src/ast"
+	"golox/src/executor/environment"
 	"strconv"
 )
 
+type Executor struct {
+	statements []ast.Stmt
+	env        parser.Environment
+}
+
+func NewExecutor(stmt []ast.Stmt) *Executor {
+	return &Executor{
+		statements: stmt,
+		env:        parser.NewEnvironment(),
+	}
+}
+
 // main executor function
-func Execute(stmt []ast.Stmt) (any, error) {
-	for _, s := range stmt {
-		_, err := execStatement(s)
+func (exec *Executor) Execute() (any, error) {
+	for _, s := range exec.statements {
+		_, err := exec.execStatement(s)
 		if err != nil {
 			return nil, err
 		}
@@ -18,19 +31,36 @@ func Execute(stmt []ast.Stmt) (any, error) {
 	return nil, nil
 }
 
-func execStatement(stmt ast.Stmt) (any, error) {
+func (exec *Executor) execStatement(stmt ast.Stmt) (any, error) {
 	switch s := stmt.(type) {
 	case *ast.ExpressionStatement:
-		return execExpressionStatement(s)
+		return exec.execExpressionStatement(s)
 	case *ast.PrintStatement:
-		return execPrintStatement(s)
+		return exec.execPrintStatement(s)
+	case *ast.VariableStatement:
+		return exec.execVariableStatement(s)
 	}
 
-	panic("unimplemented statement type")
+	return nil, nil
 }
 
-func execExpressionStatement(s *ast.ExpressionStatement) (any, error) {
-	_, err := execExpr(s.Expression)
+func (exec *Executor) execVariableStatement(s *ast.VariableStatement) (any, error) {
+	var init any = nil
+	// --- if the variable has an initializer
+	if s.Initializer != nil {
+		var err error = nil
+		init, err = exec.execExpr(*s.Initializer)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	exec.env.Set(s.Name.Literal(), init)
+	return nil, nil
+}
+
+func (exec *Executor) execExpressionStatement(s *ast.ExpressionStatement) (any, error) {
+	_, err := exec.execExpr(s.Expression)
 	if err != nil {
 		return nil, err
 	}
@@ -38,8 +68,8 @@ func execExpressionStatement(s *ast.ExpressionStatement) (any, error) {
 	return nil, nil
 }
 
-func execPrintStatement(s *ast.PrintStatement) (any, error) {
-	expr, err := execExpr(s.Expression)
+func (exec *Executor) execPrintStatement(s *ast.PrintStatement) (any, error) {
+	expr, err := exec.execExpr(s.Expression)
 	if err != nil {
 		return nil, err
 	}
@@ -50,16 +80,18 @@ func execPrintStatement(s *ast.PrintStatement) (any, error) {
 	return nil, nil
 }
 
-func execExpr(expr ast.Expr) (any, error) {
+func (exec *Executor) execExpr(expr ast.Expr) (any, error) {
 	switch e := expr.(type) {
 	case *ast.Binary:
-		return execBinary(*e)
+		return exec.execBinary(*e)
 	case *ast.Unary:
-		return execUnary(*e)
+		return exec.execUnary(*e)
 	case *ast.Grouping:
-		return execGrouping(*e)
+		return exec.execGrouping(*e)
 	case *ast.Literal:
-		return execLiteral(*e)
+		return exec.execLiteral(*e)
+	case *ast.Variable:
+		return exec.execVariable(*e)
 	}
 
 	panic("unreachable")

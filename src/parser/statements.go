@@ -1,17 +1,33 @@
 package parser
 
 import (
+	"fmt"
 	"golox/src/ast"
 	"golox/src/lexer"
 )
 
 func (parser *Parser) declaration() (ast.Stmt, error) {
-	// --- if next token is var, attempt to parse a variable declaration
-	if parser.matches(lexer.VAR) {
-		return parser.variableDeclaration()
+	if parser.isAtEnd() {
+		return nil, nil
 	}
 
-	return parser.statement()
+	var stmt ast.Stmt = nil
+	var err error = nil
+
+	// --- if next token is var, attempt to parse a variable declaration
+	if parser.matches(lexer.VAR) {
+		stmt, err = parser.variableDeclaration()
+	} else {
+		stmt, err = parser.statement()
+	}
+
+	if err != nil {
+		fmt.Printf("%s", err)
+		parser.synchronize()
+		return nil, nil
+	}
+
+	return stmt, nil
 }
 
 func (parser *Parser) variableDeclaration() (ast.Stmt, error) {

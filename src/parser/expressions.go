@@ -111,6 +111,8 @@ func (parser *Parser) primary() (ast.Expr, error) {
 		return ast.NewLiteral(nil), nil
 	} else if parser.matches(lexer.STRING) {
 		return ast.NewLiteral(parser.prev().Literal()), nil
+	} else if parser.matches(lexer.IDENTIFIER) {
+		return ast.NewVariable(parser.prev()), nil
 	} else if parser.matches(lexer.NUMBER) {
 		num, err := strconv.ParseFloat(parser.prev().Literal(), 64)
 		if err != nil {
