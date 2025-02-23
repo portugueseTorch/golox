@@ -1,4 +1,4 @@
-package parser
+package env
 
 type Environment struct {
 	store map[string]any

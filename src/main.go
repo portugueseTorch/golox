@@ -4,12 +4,13 @@ import (
 	"bufio"
 	"fmt"
 	"golox/src/executor"
+	"golox/src/executor/env"
 	"golox/src/lexer"
 	"golox/src/parser"
 	"os"
 )
 
-func run(input string) (any, error) {
+func run(input string, env env.Environment) (any, error) {
 	lexer := lexer.NewLexer(input)
 	lexer.ScanTokens()
 	if lexer.HasError() {
@@ -23,7 +24,7 @@ func run(input string) (any, error) {
 		return nil, nil
 	}
 
-	executor := executor.NewExecutor(parsed)
+	executor := executor.NewExecutor(parsed, env)
 	_, err = executor.Execute()
 	if err != nil {
 		fmt.Println(err.Error())
@@ -41,7 +42,9 @@ func HandleFileInput(filePath string) {
 		return
 	}
 
-	_, runtime_err := run(string(file))
+	// --- execution environment
+	env := env.NewEnvironment()
+	_, runtime_err := run(string(file), env)
 	if runtime_err != nil {
 		os.Exit(70)
 	}
@@ -49,6 +52,8 @@ func HandleFileInput(filePath string) {
 
 func HandleReplInput() {
 	scanner := bufio.NewScanner(os.Stdin)
+	// --- execution environment
+	env := env.NewEnvironment()
 
 	for {
 		fmt.Print(">> ")
@@ -60,7 +65,7 @@ func HandleReplInput() {
 		}
 
 		input := scanner.Text()
-		run(input)
+		run(input, env)
 	}
 }
 

@@ -3,19 +3,19 @@ package executor
 import (
 	"fmt"
 	"golox/src/ast"
-	"golox/src/executor/environment"
+	"golox/src/executor/env"
 	"strconv"
 )
 
 type Executor struct {
 	statements []ast.Stmt
-	env        parser.Environment
+	env        env.Environment
 }
 
-func NewExecutor(stmt []ast.Stmt) *Executor {
+func NewExecutor(stmt []ast.Stmt, env env.Environment) *Executor {
 	return &Executor{
 		statements: stmt,
-		env:        parser.NewEnvironment(),
+		env:        env,
 	}
 }
 
