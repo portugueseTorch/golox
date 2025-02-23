@@ -1,3 +1,0 @@
-var myVar = 42;
-
-print myVar / 2;

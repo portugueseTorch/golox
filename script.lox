@@ -1,0 +1,15 @@
+// this declares a variable (it's a number)
+var myVar = 1337;
+
+// prints the value as number
+print myVar;
+
+// formats the number to a string and concatenates the result
+print "This is myVar " + myVar;
+
+var hello = "Hello";
+
+print hello + " World" + "!";
+
+// Should print false here
+print myVar == 1336;
