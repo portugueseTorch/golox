@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-func run(input string, env executor.Environment) (any, error) {
+func run(input string, env *executor.Environment) (any, error) {
 	lexer := lexer.NewLexer(input)
 	lexer.ScanTokens()
 	if lexer.HasError() {
@@ -42,7 +42,7 @@ func HandleFileInput(filePath string) {
 	}
 
 	// --- execution environment
-	env := executor.NewEnvironment()
+	env := executor.NewEnvironment(nil)
 	_, runtime_err := run(string(file), env)
 	if runtime_err != nil {
 		os.Exit(70)
@@ -52,7 +52,7 @@ func HandleFileInput(filePath string) {
 func HandleReplInput() {
 	scanner := bufio.NewScanner(os.Stdin)
 	// --- execution environment
-	env := executor.NewEnvironment()
+	env := executor.NewEnvironment(nil)
 
 	for {
 		fmt.Print(">> ")

@@ -8,10 +8,10 @@ import (
 
 type Executor struct {
 	statements []ast.Stmt
-	env        Environment
+	env        *Environment
 }
 
-func NewExecutor(stmt []ast.Stmt, env Environment) *Executor {
+func NewExecutor(stmt []ast.Stmt, env *Environment) *Executor {
 	return &Executor{
 		statements: stmt,
 		env:        env,
@@ -38,6 +38,29 @@ func (exec *Executor) execStatement(stmt ast.Stmt) (any, error) {
 		return exec.execPrintStatement(s)
 	case *ast.VariableStatement:
 		return exec.execVariableStatement(s)
+	case *ast.BlockStatement:
+		return exec.execBlockStatement(s, NewEnvironment(exec.env))
+	}
+
+	return nil, nil
+}
+
+func (exec *Executor) reset(env *Environment) {
+	exec.env = env
+}
+
+func (exec *Executor) execBlockStatement(s *ast.BlockStatement, env *Environment) (any, error) {
+	previous := exec.env
+	defer exec.reset(previous)
+
+	// --- execute each statement individually. On error reset the state and return
+	for _, statement := range s.Statements {
+		exec.env = env
+
+		_, err := exec.execStatement(statement)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return nil, nil

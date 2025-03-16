@@ -60,10 +60,32 @@ func (parser *Parser) statement() (ast.Stmt, error) {
 	// --- print statement
 	if parser.matches(lexer.PRINT) {
 		return parser.printStatement()
+	} else if parser.matches(lexer.LEFT_BRACE) {
+		return parser.blockStatement()
 	}
 
 	// --- parse regular statement
 	return parser.expressionStatement()
+}
+
+func (parser *Parser) blockStatement() (ast.Stmt, error) {
+	statements := make([]ast.Stmt, 0)
+
+	for !parser.isAtEnd() && parser.peek().TokenType() != lexer.RIGHT_BRACE {
+		stmt, err := parser.declaration()
+		if err != nil {
+			return nil, err
+		}
+
+		statements = append(statements, stmt)
+	}
+
+	// --- if the next token is not '}', error
+	if !parser.matches(lexer.RIGHT_BRACE) {
+		return nil, NewParsingError(parser.peek(), fmt.Sprintf("expected '}' but got %s", parser.peek().TokenType()))
+	}
+
+	return ast.NewBlockStatement(statements), nil
 }
 
 func (parser *Parser) printStatement() (ast.Stmt, error) {

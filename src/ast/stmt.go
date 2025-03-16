@@ -47,3 +47,16 @@ func NewVariableStatement(name lexer.Token, init *Expr) *VariableStatement {
 }
 
 func (t *VariableStatement) stmtMarker() {}
+
+// block - group of statements
+type BlockStatement struct {
+	Statements []Stmt
+}
+
+func NewBlockStatement(statements []Stmt) *BlockStatement {
+	return &BlockStatement{
+		Statements: statements,
+	}
+}
+
+func (t *BlockStatement) stmtMarker() {}
