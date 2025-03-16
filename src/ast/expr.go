@@ -77,3 +77,18 @@ func NewVariable(name lexer.Token) *Variable {
 }
 
 func (t *Variable) marker() {}
+
+// --- Variable node
+type Assignment struct {
+	Name  lexer.Token
+	Value Expr
+}
+
+func NewAssignment(name lexer.Token, val Expr) *Assignment {
+	return &Assignment{
+		Name:  name,
+		Value: val,
+	}
+}
+
+func (t *Assignment) marker() {}

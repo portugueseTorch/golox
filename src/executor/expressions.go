@@ -1,10 +1,18 @@
 package executor
 
 import (
-	"fmt"
 	"golox/src/ast"
 	"golox/src/lexer"
 )
+
+func (exec *Executor) execAssignment(expr ast.Assignment) (any, error) {
+	value, err := exec.execExpr(expr.Value)
+	if err != nil {
+		return nil, err
+	}
+
+	return exec.env.Assign(expr.Name, value)
+}
 
 func (exec *Executor) execBinary(expr ast.Binary) (any, error) {
 	left, left_err := exec.execExpr(expr.Left)
@@ -69,12 +77,7 @@ func (exec *Executor) execUnary(expr ast.Unary) (any, error) {
 }
 
 func (exec *Executor) execVariable(expr ast.Variable) (any, error) {
-	val, ok := exec.env.Get(expr.Name.Literal())
-	if !ok {
-		return nil, NewRuntimeError(expr.Name, fmt.Sprintf("undefined variable '%s'", expr.Name.Literal()))
-	}
-
-	return val, nil
+	return exec.env.Get(expr.Name)
 }
 
 // consider falsy to be only <nil> or false

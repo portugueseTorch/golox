@@ -3,16 +3,15 @@ package executor
 import (
 	"fmt"
 	"golox/src/ast"
-	"golox/src/executor/env"
 	"strconv"
 )
 
 type Executor struct {
 	statements []ast.Stmt
-	env        env.Environment
+	env        Environment
 }
 
-func NewExecutor(stmt []ast.Stmt, env env.Environment) *Executor {
+func NewExecutor(stmt []ast.Stmt, env Environment) *Executor {
 	return &Executor{
 		statements: stmt,
 		env:        env,
@@ -92,6 +91,8 @@ func (exec *Executor) execExpr(expr ast.Expr) (any, error) {
 		return exec.execLiteral(*e)
 	case *ast.Variable:
 		return exec.execVariable(*e)
+	case *ast.Assignment:
+		return exec.execAssignment(*e)
 	}
 
 	panic("unreachable")

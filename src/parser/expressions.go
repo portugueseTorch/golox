@@ -7,7 +7,36 @@ import (
 )
 
 func (parser *Parser) expression() (ast.Expr, error) {
-	return parser.equality()
+	return parser.assignment()
+}
+
+func (parser *Parser) assignment() (ast.Expr, error) {
+	expr, err := parser.equality()
+	if err != nil {
+		return nil, err
+	}
+
+	// if the next token is an equal sign, test for assignment
+	if parser.matches(lexer.EQUAL) {
+		eq := parser.prev()
+
+		value, err := parser.assignment()
+		if err != nil {
+			return nil, err
+		}
+
+		// if the top level expression is not a variable, this is not a valid assignment
+		switch varName := expr.(type) {
+		case *ast.Variable:
+			assignment := ast.NewAssignment(varName.Name, value)
+			return assignment, nil
+		default:
+			assignmentError := NewParsingError(eq, "invalid assignment operation")
+			return nil, assignmentError
+		}
+	}
+
+	return expr, nil
 }
 
 func (parser *Parser) equality() (ast.Expr, error) {
