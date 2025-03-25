@@ -34,6 +34,8 @@ func (exec *Executor) execStatement(stmt ast.Stmt) (any, error) {
 	switch s := stmt.(type) {
 	case *ast.ExpressionStatement:
 		return exec.execExpressionStatement(s)
+	case *ast.ConditionalStatement:
+		return exec.execConditionalStatement(s)
 	case *ast.PrintStatement:
 		return exec.execPrintStatement(s)
 	case *ast.VariableStatement:
@@ -47,6 +49,19 @@ func (exec *Executor) execStatement(stmt ast.Stmt) (any, error) {
 
 func (exec *Executor) reset(env *Environment) {
 	exec.env = env
+}
+
+func (exec *Executor) execConditionalStatement(s *ast.ConditionalStatement) (any, error) {
+	condition, err := exec.execExpr(s.Condition)
+	if err != nil {
+		return nil, err
+	}
+
+	if isTruthy(condition) {
+		return exec.execStatement(s.IfBranch)
+	} else {
+		return exec.execStatement(s.ElseBranch)
+	}
 }
 
 func (exec *Executor) execBlockStatement(s *ast.BlockStatement, env *Environment) (any, error) {

@@ -19,6 +19,23 @@ func NewExpressionStatement(expr Expr) *ExpressionStatement {
 
 func (t *ExpressionStatement) stmtMarker() {}
 
+// conditional statements
+type ConditionalStatement struct {
+	Condition  Expr
+	IfBranch   Stmt
+	ElseBranch Stmt
+}
+
+func NewConditionalStatement(condition Expr, ifBranch Stmt, elseBranch Stmt) *ConditionalStatement {
+	return &ConditionalStatement{
+		Condition:  condition,
+		IfBranch:   ifBranch,
+		ElseBranch: elseBranch,
+	}
+}
+
+func (t *ConditionalStatement) stmtMarker() {}
+
 // print statement
 type PrintStatement struct {
 	Expression Expr

@@ -60,12 +60,45 @@ func (parser *Parser) statement() (ast.Stmt, error) {
 	// --- print statement
 	if parser.matches(lexer.PRINT) {
 		return parser.printStatement()
+	} else if parser.matches(lexer.IF) {
+		return parser.conditionalStatement()
 	} else if parser.matches(lexer.LEFT_BRACE) {
 		return parser.blockStatement()
 	}
 
 	// --- parse regular statement
 	return parser.expressionStatement()
+}
+
+func (parser *Parser) conditionalStatement() (ast.Stmt, error) {
+	if !parser.matches(lexer.LEFT_PAREN) {
+		return nil, NewParsingError(parser.peek(), fmt.Sprintf("expected '(' but got %s", parser.peek().TokenType()))
+	}
+
+	condition, err := parser.expression()
+	if err != nil {
+		return nil, err
+	}
+
+	if !parser.matches(lexer.RIGHT_PAREN) {
+		return nil, NewParsingError(parser.peek(), fmt.Sprintf("expected ')' but got %s", parser.peek().TokenType()))
+	}
+
+	ifBranch, err := parser.statement()
+	if err != nil {
+		return nil, err
+	}
+
+	var elseBranch ast.Stmt = nil
+	if parser.matches(lexer.ELSE) {
+		var err error
+		elseBranch, err = parser.statement()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return ast.NewConditionalStatement(condition, ifBranch, elseBranch), nil
 }
 
 func (parser *Parser) blockStatement() (ast.Stmt, error) {
