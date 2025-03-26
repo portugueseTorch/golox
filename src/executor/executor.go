@@ -200,7 +200,7 @@ func (exec *Executor) execExpr(expr ast.Expr) (any, error) {
 		return exec.execAssignment(*e)
 	}
 
-	return true, nil
+	return nil, nil
 }
 
 func Stringify(result any) string {

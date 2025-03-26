@@ -94,7 +94,12 @@ func (parser *Parser) forStatement() (ast.Stmt, error) {
 	}
 
 	// parse condition
-	condition, err := parser.expression()
+	var condition ast.Expr = nil
+	if parser.peek().TokenType() == lexer.SEMICOLON {
+		condition, err = ast.NewLiteral(true), nil
+	} else {
+		condition, err = parser.expression()
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +108,10 @@ func (parser *Parser) forStatement() (ast.Stmt, error) {
 	}
 
 	// parse increment
-	increment, err := parser.expression()
+	var increment ast.Expr = nil
+	if parser.peek().TokenType() != lexer.RIGHT_PAREN {
+		increment, err = parser.expression()
+	}
 	if err != nil {
 		return nil, err
 	}
