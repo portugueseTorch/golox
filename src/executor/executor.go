@@ -119,6 +119,8 @@ func (exec *Executor) execPrintStatement(s *ast.PrintStatement) (any, error) {
 
 func (exec *Executor) execExpr(expr ast.Expr) (any, error) {
 	switch e := expr.(type) {
+	case *ast.Logical:
+		return exec.execLogical(*e)
 	case *ast.Binary:
 		return exec.execBinary(*e)
 	case *ast.Unary:

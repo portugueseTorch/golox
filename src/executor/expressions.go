@@ -14,6 +14,23 @@ func (exec *Executor) execAssignment(expr ast.Assignment) (any, error) {
 	return exec.env.Assign(expr.Name, value)
 }
 
+func (exec *Executor) execLogical(expr ast.Logical) (any, error) {
+	left, left_err := exec.execExpr(expr.Left)
+	if left_err != nil {
+		return nil, left_err
+	}
+
+	// short circuit, if appropriate
+	leftIsTruthy := isTruthy(left)
+	if expr.Operator.TokenType() == lexer.AND && !leftIsTruthy {
+		return left, nil
+	} else if expr.Operator.TokenType() == lexer.OR && leftIsTruthy {
+		return left, nil
+	}
+
+	return exec.execExpr(expr.Right)
+}
+
 func (exec *Executor) execBinary(expr ast.Binary) (any, error) {
 	left, left_err := exec.execExpr(expr.Left)
 	if left_err != nil {
