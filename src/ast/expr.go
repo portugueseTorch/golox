@@ -7,6 +7,22 @@ type Expr interface {
 	marker()
 }
 
+type Logical struct {
+	Left     Expr
+	Operator lexer.Token
+	Right    Expr
+}
+
+func NewLogical(left Expr, op lexer.Token, right Expr) *Logical {
+	return &Logical{
+		Left:     left,
+		Operator: op,
+		Right:    right,
+	}
+}
+
+func (t *Logical) marker() {}
+
 // --- Binary expression: 1 + 2
 type Binary struct {
 	Left     Expr

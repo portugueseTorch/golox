@@ -11,7 +11,7 @@ func (parser *Parser) expression() (ast.Expr, error) {
 }
 
 func (parser *Parser) assignment() (ast.Expr, error) {
-	expr, err := parser.equality()
+	expr, err := parser.or()
 	if err != nil {
 		return nil, err
 	}
@@ -37,6 +37,46 @@ func (parser *Parser) assignment() (ast.Expr, error) {
 	}
 
 	return expr, nil
+}
+
+func (parser *Parser) or() (ast.Expr, error) {
+	left, err := parser.and()
+	if err != nil {
+		return nil, err
+	}
+
+	// if next token is an OR, build right side of the expression
+	op := parser.peek()
+	var right ast.Expr
+	for parser.matches(lexer.OR) {
+		var err error
+		right, err = parser.and()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return ast.NewLogical(left, op, right), nil
+}
+
+func (parser *Parser) and() (ast.Expr, error) {
+	left, err := parser.equality()
+	if err != nil {
+		return nil, err
+	}
+
+	// if next token is an AND, build right side of the expression
+	op := parser.peek()
+	var right ast.Expr
+	for parser.matches(lexer.AND) {
+		var err error
+		right, err = parser.equality()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return ast.NewLogical(left, op, right), nil
 }
 
 func (parser *Parser) equality() (ast.Expr, error) {
