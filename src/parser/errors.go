@@ -18,7 +18,7 @@ func NewParsingError(token lexer.Token, msg string) ParsingError {
 }
 
 func (err ParsingError) Error() string {
-	return fmt.Sprintf("[ERROR]: parsing error at line %d: %s but got '%s'\n", err.Token.Line(), err.Msg, err.Token.Type())
+	return fmt.Sprintf("[ERROR]: parsing error at line %d: %s\n", err.Token.Line(), err.Msg)
 }
 
 /*

@@ -66,10 +66,59 @@ func (parser *Parser) statement() (ast.Stmt, error) {
 		return parser.blockStatement()
 	} else if parser.matches(lexer.WHILE) {
 		return parser.whileStatement()
+	} else if parser.matches(lexer.FOR) {
+		return parser.forStatement()
 	}
 
 	// --- parse regular statement
 	return parser.expressionStatement()
+}
+
+func (parser *Parser) forStatement() (ast.Stmt, error) {
+	if !parser.matches(lexer.LEFT_PAREN) {
+		return nil, NewParsingError(parser.peek(), fmt.Sprintf("expected '(' but got %s", parser.peek().TokenType()))
+	}
+
+	// parse initializer
+	var initializer ast.Stmt = nil
+	var err error = nil
+	if parser.matches(lexer.VAR) {
+		initializer, err = parser.variableDeclaration()
+	} else if parser.matches(lexer.SEMICOLON) {
+		initializer, err = nil, nil
+	} else {
+		initializer, err = parser.expressionStatement()
+	}
+	if err != nil {
+		return nil, NewParsingError(parser.peek(), fmt.Sprintf("invalid initializer in 'for' loop"))
+	}
+
+	// parse condition
+	condition, err := parser.expression()
+	if err != nil {
+		return nil, err
+	}
+	if !parser.matches(lexer.SEMICOLON) {
+		return nil, NewParsingError(parser.peek(), fmt.Sprintf("expected ';' but got %s", parser.peek().TokenType()))
+	}
+
+	// parse increment
+	increment, err := parser.expression()
+	if err != nil {
+		return nil, err
+	}
+
+	if !parser.matches(lexer.RIGHT_PAREN) {
+		return nil, NewParsingError(parser.peek(), fmt.Sprintf("expected ')' but got %s", parser.peek().TokenType()))
+	}
+
+	// parse body
+	body, err := parser.statement()
+	if err != nil {
+		return nil, err
+	}
+
+	return ast.NewForStatement(initializer, condition, increment, body), nil
 }
 
 func (parser *Parser) whileStatement() (ast.Stmt, error) {

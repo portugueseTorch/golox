@@ -6,6 +6,28 @@ type Stmt interface {
 	stmtMarker()
 }
 
+// for statements
+type ForStatement struct {
+	// runs once before execution, can be a statement or a variable declaration for convenience - optional
+	Initializer Stmt
+	// condition that gets checked in the begining of each iteration - optional
+	Condition Expr
+	// arbitrary expression that does some work at the end of each iteration (usually incrementing iterator) - optional
+	Increment Expr
+	Body      Stmt
+}
+
+func NewForStatement(init Stmt, cond Expr, incr Expr, body Stmt) *ForStatement {
+	return &ForStatement{
+		Initializer: init,
+		Condition:   cond,
+		Increment:   incr,
+		Body:        body,
+	}
+}
+
+func (t *ForStatement) stmtMarker() {}
+
 // while statements
 type WhileStatement struct {
 	Condition Expr

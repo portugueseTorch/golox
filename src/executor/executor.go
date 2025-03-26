@@ -30,6 +30,10 @@ func (exec *Executor) Execute() (any, error) {
 	return nil, nil
 }
 
+func (exec *Executor) reset(env *Environment) {
+	exec.env = env
+}
+
 func (exec *Executor) execStatement(stmt ast.Stmt) (any, error) {
 	switch s := stmt.(type) {
 	case *ast.ExpressionStatement:
@@ -44,13 +48,51 @@ func (exec *Executor) execStatement(stmt ast.Stmt) (any, error) {
 		return exec.execBlockStatement(s, NewEnvironment(exec.env))
 	case *ast.WhileStatement:
 		return exec.execWhileStatement(s)
+	case *ast.ForStatement:
+		return exec.execForStatement(s)
 	}
 
 	return nil, nil
 }
 
-func (exec *Executor) reset(env *Environment) {
-	exec.env = env
+func (exec *Executor) execForStatement(s *ast.ForStatement) (any, error) {
+	switch init := s.Initializer.(type) {
+	case *ast.VariableStatement:
+		value, err := exec.execExpr(*init.Initializer)
+		if err != nil {
+			return nil, err
+		}
+		exec.env.Set(init.Name.Literal(), value)
+	case *ast.ExpressionStatement:
+		_, err := exec.execExpr(*&init.Expression)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	cond, err := exec.execExpr(s.Condition)
+	if err != nil {
+		return nil, err
+	}
+
+	for isTruthy(cond) {
+		_, err := exec.execStatement(s.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		_, err = exec.execExpr(s.Increment)
+		if err != nil {
+			return nil, err
+		}
+
+		cond, err = exec.execExpr(s.Condition)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return nil, nil
 }
 
 func (exec *Executor) execWhileStatement(s *ast.WhileStatement) (any, error) {
@@ -158,7 +200,7 @@ func (exec *Executor) execExpr(expr ast.Expr) (any, error) {
 		return exec.execAssignment(*e)
 	}
 
-	panic("unreachable")
+	return true, nil
 }
 
 func Stringify(result any) string {
