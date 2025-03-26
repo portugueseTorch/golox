@@ -64,10 +64,34 @@ func (parser *Parser) statement() (ast.Stmt, error) {
 		return parser.conditionalStatement()
 	} else if parser.matches(lexer.LEFT_BRACE) {
 		return parser.blockStatement()
+	} else if parser.matches(lexer.WHILE) {
+		return parser.whileStatement()
 	}
 
 	// --- parse regular statement
 	return parser.expressionStatement()
+}
+
+func (parser *Parser) whileStatement() (ast.Stmt, error) {
+	if !parser.matches(lexer.LEFT_PAREN) {
+		return nil, NewParsingError(parser.peek(), fmt.Sprintf("expected '(' but got %s", parser.peek().TokenType()))
+	}
+
+	condition, err := parser.expression()
+	if err != nil {
+		return nil, err
+	}
+
+	if !parser.matches(lexer.RIGHT_PAREN) {
+		return nil, NewParsingError(parser.peek(), fmt.Sprintf("expected ')' but got %s", parser.peek().TokenType()))
+	}
+
+	body, err := parser.statement()
+	if err != nil {
+		return nil, err
+	}
+
+	return ast.NewWhileStatement(condition, body), nil
 }
 
 func (parser *Parser) conditionalStatement() (ast.Stmt, error) {

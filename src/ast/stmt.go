@@ -6,6 +6,21 @@ type Stmt interface {
 	stmtMarker()
 }
 
+// while statements
+type WhileStatement struct {
+	Condition Expr
+	Body      Stmt
+}
+
+func NewWhileStatement(condition Expr, body Stmt) *WhileStatement {
+	return &WhileStatement{
+		Condition: condition,
+		Body:      body,
+	}
+}
+
+func (t *WhileStatement) stmtMarker() {}
+
 // expression statements
 type ExpressionStatement struct {
 	Expression Expr

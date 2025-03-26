@@ -42,6 +42,8 @@ func (exec *Executor) execStatement(stmt ast.Stmt) (any, error) {
 		return exec.execVariableStatement(s)
 	case *ast.BlockStatement:
 		return exec.execBlockStatement(s, NewEnvironment(exec.env))
+	case *ast.WhileStatement:
+		return exec.execWhileStatement(s)
 	}
 
 	return nil, nil
@@ -49,6 +51,27 @@ func (exec *Executor) execStatement(stmt ast.Stmt) (any, error) {
 
 func (exec *Executor) reset(env *Environment) {
 	exec.env = env
+}
+
+func (exec *Executor) execWhileStatement(s *ast.WhileStatement) (any, error) {
+	cond, err := exec.execExpr(s.Condition)
+	if err != nil {
+		return nil, err
+	}
+
+	for isTruthy(cond) {
+		_, err := exec.execStatement(s.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		cond, err = exec.execExpr(s.Condition)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return nil, nil
 }
 
 func (exec *Executor) execConditionalStatement(s *ast.ConditionalStatement) (any, error) {
