@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"golox/src/ast"
 	"golox/src/lexer"
 	"strconv"
@@ -40,43 +41,43 @@ func (parser *Parser) assignment() (ast.Expr, error) {
 }
 
 func (parser *Parser) or() (ast.Expr, error) {
-	left, err := parser.and()
+	expr, err := parser.and()
 	if err != nil {
 		return nil, err
 	}
 
 	// if next token is an OR, build right side of the expression
-	op := parser.peek()
-	var right ast.Expr
 	for parser.matches(lexer.OR) {
-		var err error
-		right, err = parser.and()
+		op := parser.peek()
+		right, err := parser.and()
 		if err != nil {
 			return nil, err
 		}
+
+		expr = ast.NewLogical(expr, op, right)
 	}
 
-	return ast.NewLogical(left, op, right), nil
+	return expr, nil
 }
 
 func (parser *Parser) and() (ast.Expr, error) {
-	left, err := parser.equality()
+	expr, err := parser.equality()
 	if err != nil {
 		return nil, err
 	}
 
 	// if next token is an AND, build right side of the expression
-	op := parser.peek()
-	var right ast.Expr
 	for parser.matches(lexer.AND) {
-		var err error
-		right, err = parser.equality()
+		op := parser.peek()
+		right, err := parser.equality()
 		if err != nil {
 			return nil, err
 		}
+
+		expr = ast.NewLogical(expr, op, right)
 	}
 
-	return ast.NewLogical(left, op, right), nil
+	return expr, nil
 }
 
 func (parser *Parser) equality() (ast.Expr, error) {

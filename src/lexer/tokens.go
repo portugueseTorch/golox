@@ -95,9 +95,9 @@ func (t TokenType) String() string {
 	case LESS_EQUAL:
 		return "<="
 	case AND:
-		return "&&"
+		return "and"
 	case OR:
-		return "||"
+		return "or"
 	case IF:
 		return "if"
 	case ELSE:
