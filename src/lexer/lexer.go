@@ -83,6 +83,20 @@ func (lex *Lexer) scanToken() {
 		} else {
 			lex.appendToken(SLASH, nil)
 		}
+	case '&':
+		// if next character is not '&', log error
+		if !lex.matches('&') {
+			lex.LogError(fmt.Sprintf("unexpected token '%c'", c))
+		} else {
+			lex.appendToken(AND, nil)
+		}
+	case '|':
+		// if next character is not '&', log error
+		if !lex.matches('|') {
+			lex.LogError(fmt.Sprintf("unexpected token '%c'", c))
+		} else {
+			lex.appendToken(OR, nil)
+		}
 	default:
 		if IsDigit(c) {
 			lex.buildNumericToken()
@@ -105,10 +119,6 @@ func (lex *Lexer) buildIdentifierOrReservedToken() {
 		lex.appendToken(IF, nil)
 	case "else":
 		lex.appendToken(ELSE, nil)
-	case "and":
-		lex.appendToken(AND, nil)
-	case "or":
-		lex.appendToken(OR, nil)
 	case "true":
 		lex.appendToken(TRUE, nil)
 	case "false":

@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"golox/src/ast"
 	"golox/src/lexer"
 	"strconv"
@@ -48,7 +47,7 @@ func (parser *Parser) or() (ast.Expr, error) {
 
 	// if next token is an OR, build right side of the expression
 	for parser.matches(lexer.OR) {
-		op := parser.peek()
+		op := parser.prev()
 		right, err := parser.and()
 		if err != nil {
 			return nil, err
@@ -68,7 +67,7 @@ func (parser *Parser) and() (ast.Expr, error) {
 
 	// if next token is an AND, build right side of the expression
 	for parser.matches(lexer.AND) {
-		op := parser.peek()
+		op := parser.prev()
 		right, err := parser.equality()
 		if err != nil {
 			return nil, err
