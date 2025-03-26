@@ -105,6 +105,10 @@ func (lex *Lexer) buildIdentifierOrReservedToken() {
 		lex.appendToken(IF, nil)
 	case "else":
 		lex.appendToken(ELSE, nil)
+	case "and":
+		lex.appendToken(AND, nil)
+	case "or":
+		lex.appendToken(OR, nil)
 	case "true":
 		lex.appendToken(TRUE, nil)
 	case "false":
