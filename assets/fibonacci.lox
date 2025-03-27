@@ -1,8 +1,19 @@
 var a = 0;
 var temp;
 
+print "First 21 elements of the Fibonacci sequence:";
+
 for (var b = 1; a < 10000; b = temp + b) {
   print a;
   temp = a;
   a = b;
+}
+
+var condition = 1337 > 1336;
+var helloIfTrue = condition && "Hello!";
+
+if (!condition) {
+  print "Condition was false";
+} else {
+  print helloIfTrue;
 }
