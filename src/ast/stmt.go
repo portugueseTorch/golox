@@ -6,6 +6,23 @@ type Stmt interface {
 	stmtMarker()
 }
 
+// funcDecl - function declarations
+type FunctionStatement struct {
+	Name       lexer.Token
+	Parameters []lexer.Token
+	Body       []Stmt
+}
+
+func NewFunctionStatement(name lexer.Token, parms []lexer.Token, body []Stmt) *FunctionStatement {
+	return &FunctionStatement{
+		Name:       name,
+		Parameters: parms,
+		Body:       body,
+	}
+}
+
+func (t *FunctionStatement) stmtMarker() {}
+
 // for statements
 type ForStatement struct {
 	// runs once before execution, can be a statement or a variable declaration for convenience - optional

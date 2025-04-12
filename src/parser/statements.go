@@ -17,6 +17,8 @@ func (parser *Parser) declaration() (ast.Stmt, error) {
 	// --- if next token is var, attempt to parse a variable declaration
 	if parser.matches(lexer.VAR) {
 		stmt, err = parser.variableDeclaration()
+	} else if parser.matches(lexer.FUN) {
+		stmt, err = parser.function()
 	} else {
 		stmt, err = parser.statement()
 	}
@@ -28,6 +30,38 @@ func (parser *Parser) declaration() (ast.Stmt, error) {
 	}
 
 	return stmt, nil
+}
+
+func (parser *Parser) function() (ast.Stmt, error) {
+	if !parser.matches(lexer.IDENTIFIER) {
+		return nil, NewParsingError(parser.peek(), fmt.Sprintf("expected IDENTIFIER, got %s\n", parser.peek().TokenType()))
+	}
+	name := parser.prev()
+
+	if !parser.matches(lexer.LEFT_PAREN) {
+		return nil, NewParsingError(parser.peek(), fmt.Sprintf("expected '(', got %s\n", parser.peek().TokenType()))
+	}
+	params := make([]lexer.Token, 0)
+	for parser.matches(lexer.COMMA) {
+		if len(params) >= 255 {
+			return nil, NewParsingError(parser.peek(), "functions cannot take more than 255 parameters")
+		}
+
+		params = append(params, parser.prev())
+	}
+	if !parser.matches(lexer.RIGHT_PAREN) {
+		return nil, NewParsingError(parser.peek(), fmt.Sprintf("expected ')', got %s\n", parser.peek().TokenType()))
+	}
+
+	if !parser.matches(lexer.LEFT_BRACE) {
+		return nil, NewParsingError(parser.peek(), fmt.Sprintf("expected '{', got %s\n", parser.peek().TokenType()))
+	}
+	body, err := parser.block()
+	if err != nil {
+		return nil, err
+	}
+
+	return ast.NewFunctionStatement(name, params, body), nil
 }
 
 func (parser *Parser) variableDeclaration() (ast.Stmt, error) {
@@ -183,6 +217,15 @@ func (parser *Parser) conditionalStatement() (ast.Stmt, error) {
 }
 
 func (parser *Parser) blockStatement() (ast.Stmt, error) {
+	statements, err := parser.block()
+	if err != nil {
+		return nil, err
+	}
+
+	return ast.NewBlockStatement(statements), nil
+}
+
+func (parser *Parser) block() ([]ast.Stmt, error) {
 	statements := make([]ast.Stmt, 0)
 
 	for !parser.isAtEnd() && parser.peek().TokenType() != lexer.RIGHT_BRACE {
@@ -199,7 +242,7 @@ func (parser *Parser) blockStatement() (ast.Stmt, error) {
 		return nil, NewParsingError(parser.peek(), fmt.Sprintf("expected '}' but got %s", parser.peek().TokenType()))
 	}
 
-	return ast.NewBlockStatement(statements), nil
+	return statements, nil
 }
 
 func (parser *Parser) printStatement() (ast.Stmt, error) {
