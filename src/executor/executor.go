@@ -9,12 +9,17 @@ import (
 type Executor struct {
 	statements []ast.Stmt
 	env        *Environment
+	global     *Environment
 }
 
 func NewExecutor(stmt []ast.Stmt, env *Environment) *Executor {
+	global := NewEnvironment(env)
+	global.Set("clock", Clock())
+
 	return &Executor{
 		statements: stmt,
-		env:        env,
+		env:        global,
+		global:     global,
 	}
 }
 
@@ -36,6 +41,8 @@ func (exec *Executor) reset(env *Environment) {
 
 func (exec *Executor) execStatement(stmt ast.Stmt) (any, error) {
 	switch s := stmt.(type) {
+	case *ast.FunctionStatement:
+		return exec.execFunctionStatement(s)
 	case *ast.ExpressionStatement:
 		return exec.execExpressionStatement(s)
 	case *ast.ConditionalStatement:
@@ -52,6 +59,11 @@ func (exec *Executor) execStatement(stmt ast.Stmt) (any, error) {
 		return exec.execForStatement(s)
 	}
 
+	return nil, nil
+}
+
+func (exec *Executor) execFunctionStatement(s *ast.FunctionStatement) (any, error) {
+	exec.env.Set(s.Name.Literal(), NewGoloxFunction(*s))
 	return nil, nil
 }
 
@@ -130,11 +142,15 @@ func (exec *Executor) execConditionalStatement(s *ast.ConditionalStatement) (any
 }
 
 func (exec *Executor) execBlockStatement(s *ast.BlockStatement, env *Environment) (any, error) {
+	return exec.execBlock(s.Statements, env)
+}
+
+func (exec *Executor) execBlock(statements []ast.Stmt, env *Environment) (any, error) {
 	previous := exec.env
 	defer exec.reset(previous)
 
 	// --- execute each statement individually. On error reset the state and return
-	for _, statement := range s.Statements {
+	for _, statement := range statements {
 		exec.env = env
 
 		_, err := exec.execStatement(statement)
@@ -184,6 +200,8 @@ func (exec *Executor) execPrintStatement(s *ast.PrintStatement) (any, error) {
 
 func (exec *Executor) execExpr(expr ast.Expr) (any, error) {
 	switch e := expr.(type) {
+	case *ast.Call:
+		return exec.execCall(*e)
 	case *ast.Logical:
 		return exec.execLogical(*e)
 	case *ast.Binary:

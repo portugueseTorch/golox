@@ -1,9 +1,40 @@
 package executor
 
 import (
+	"fmt"
 	"golox/src/ast"
 	"golox/src/lexer"
 )
+
+func (exec *Executor) execCall(call ast.Call) (any, error) {
+	callee, err := exec.execExpr(call.Callee)
+	if err != nil {
+		return nil, err
+	}
+
+	// --- if callee is not callable, runtime error
+	callable, ok := callee.(Callable)
+	if !ok {
+		return nil, NewRuntimeError(call.Paren, "expression is not callable")
+	}
+
+	// --- check arity
+	if callable.arity() != len(call.Args) {
+		return nil, NewRuntimeError(call.Paren, fmt.Sprintf("invalid number of arguments: expected %d but got %d\n", callable.arity(), len(call.Args)))
+	}
+
+	args := make([]any, 0)
+	for _, arg := range call.Args {
+		val, err := exec.execExpr(arg)
+		if err != nil {
+			return nil, err
+		}
+
+		args = append(args, val)
+	}
+
+	return callable.call(exec, args)
+}
 
 func (exec *Executor) execAssignment(expr ast.Assignment) (any, error) {
 	value, err := exec.execExpr(expr.Value)

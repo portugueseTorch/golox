@@ -1,0 +1,6 @@
+fun myFunction(a, b) {
+  print a;
+  print b;
+}
+
+myFunction("Hello", "World");
