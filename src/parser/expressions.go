@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"golox/src/ast"
 	"golox/src/lexer"
 	"strconv"
@@ -169,6 +170,56 @@ func (parser *Parser) unary() (ast.Expr, error) {
 	}
 
 	return parser.primary()
+}
+
+func (parser *Parser) call() (ast.Expr, error) {
+	calleeOrPrimary, err := parser.primary()
+	if err != nil {
+		return nil, err
+	}
+
+	for {
+		if parser.matches(lexer.LEFT_PAREN) {
+			calleeOrPrimary, err = parser.callHelper(calleeOrPrimary)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			break
+		}
+	}
+
+	return calleeOrPrimary, nil
+}
+
+func (parser *Parser) callHelper(callee ast.Expr) (ast.Expr, error) {
+	var args = make([]ast.Expr, 0)
+
+	// --- if the next token is not a ')', parse args
+	if parser.peek().TokenType() != lexer.RIGHT_PAREN {
+		for {
+			if len(args) >= 255 {
+				return nil, NewParsingError(parser.peek(), "function calls can have at most 255 arguments")
+			}
+
+			arg, err := parser.expression()
+			if err != nil {
+				return nil, err
+			}
+			args = append(args, arg)
+
+			// --- if we are not at a comma, break out of the loop
+			if !parser.matches(lexer.COMMA) {
+				break
+			}
+		}
+	}
+
+	if !parser.matches(lexer.RIGHT_PAREN) {
+		return nil, NewParsingError(parser.peek(), fmt.Sprintf("expected ')' but got %s\n", parser.peek().Type()))
+	}
+
+	return ast.NewCall(callee, parser.prev(), args), nil
 }
 
 func (parser *Parser) primary() (ast.Expr, error) {

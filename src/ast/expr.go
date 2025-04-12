@@ -66,6 +66,23 @@ func NewLiteral(value any) *Literal {
 
 func (t *Literal) marker() {}
 
+// --- call expression: primary expression or function call
+type Call struct {
+	Callee Expr
+	Paren  lexer.Token // --- used to report runtime errors
+	Args   []Expr
+}
+
+func NewCall(callee Expr, paren lexer.Token, args []Expr) *Call {
+	return &Call{
+		Callee: callee,
+		Paren:  paren,
+		Args:   args,
+	}
+}
+
+func (t *Call) marker() {}
+
 // --- Unary expression: !true | -1337
 type Unary struct {
 	Operator   lexer.Token
