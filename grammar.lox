@@ -13,7 +13,9 @@ statement      → exprStmt
                | whileStmt
                | forStmt
                | block ;
+               | return ;
 
+return         → "return" expression? ";" ;
 block          → "{" declaration* "}" ;
 exprStmt       → expression ";" ;
 printStmt      → "print" expression ";" ;
