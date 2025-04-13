@@ -1,0 +1,17 @@
+// should be accessible from the function
+var myVar = 42;
+
+fun printInner() {
+  print "Inner printing myVar: " + myVar;
+  // should result in a runtime error
+  print invisible;
+}
+
+fun printMyVar() {
+  print myVar;
+
+  var invisible = 1337;
+  printInner();
+}
+
+printMyVar();
