@@ -1,6 +1,8 @@
 fun myFunction(a, b) {
   print a;
   print b;
+  return a + " " + b + "!";
 }
 
-myFunction("Hello", "World");
+var value = myFunction("Hello", "World");
+print value;

@@ -1,0 +1,18 @@
+fun myFunction(value) {
+  // declare inner function
+  fun inner(value) {
+    print "Hello from inner function!";
+
+    if (!value) {
+      print "returning " + value + " from inner...";
+      return value;
+    }
+
+    return nil;
+  }
+
+  return inner(value);
+}
+
+var ret = myFunction(42);
+print "ret = " + (ret || "nil");
