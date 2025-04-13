@@ -74,7 +74,7 @@ func (exec *Executor) execReturnStatement(s *ast.ReturnStatement) (any, error) {
 }
 
 func (exec *Executor) execFunctionStatement(s *ast.FunctionStatement) (any, error) {
-	exec.env.Set(s.Name.Literal(), NewGoloxFunction(*s))
+	exec.env.Set(s.Name.Literal(), NewGoloxFunction(*s, exec.env))
 	return nil, nil
 }
 

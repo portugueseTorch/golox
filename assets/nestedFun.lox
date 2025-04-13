@@ -1,9 +1,9 @@
 fun myFunction(value) {
   // declare inner function
-  fun inner(value) {
+  fun inner() {
     print "Hello from inner function!";
 
-    if (!value) {
+    if (value) {
       print "returning " + value + " from inner...";
       return value;
     }
@@ -11,7 +11,7 @@ fun myFunction(value) {
     return nil;
   }
 
-  return inner(value);
+  return inner();
 }
 
 var ret = myFunction(42);

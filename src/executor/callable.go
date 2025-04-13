@@ -18,12 +18,14 @@ type Callable interface {
 }
 
 type GoloxFunction struct {
-	decl ast.FunctionStatement
+	decl    ast.FunctionStatement
+	closure *Environment
 }
 
-func NewGoloxFunction(decl ast.FunctionStatement) *GoloxFunction {
+func NewGoloxFunction(decl ast.FunctionStatement, env *Environment) *GoloxFunction {
 	return &GoloxFunction{
-		decl: decl,
+		decl:    decl,
+		closure: env,
 	}
 }
 
@@ -41,7 +43,7 @@ func (fun *GoloxFunction) call(executor *Executor, args []any) (r any, e error) 
 		}
 	}()
 
-	env := NewEnvironment(executor.global)
+	env := NewEnvironment(fun.closure)
 
 	// --- bind the args with the respective params
 	assert(len(fun.decl.Parameters) == len(args), "incorrect number of arguments for function call")
