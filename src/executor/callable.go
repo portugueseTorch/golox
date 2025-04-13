@@ -28,7 +28,19 @@ func NewGoloxFunction(decl ast.FunctionStatement) *GoloxFunction {
 }
 
 // --- assumes all arity checks have already been done, but maybe worth moving this here
-func (fun *GoloxFunction) call(executor *Executor, args []any) (any, error) {
+func (fun *GoloxFunction) call(executor *Executor, args []any) (r any, e error) {
+	defer func() {
+		if raw := recover(); raw != nil {
+			// --- if the panic holds a ReturnValue, handle it, otherwise re-panic
+			if returnValue, isReturnValue := raw.(ReturnValue); isReturnValue {
+				r = returnValue.val
+				e = nil
+			} else {
+				panic(raw)
+			}
+		}
+	}()
+
 	env := NewEnvironment(executor.global)
 
 	// --- bind the args with the respective params
@@ -37,7 +49,12 @@ func (fun *GoloxFunction) call(executor *Executor, args []any) (any, error) {
 		env.Set(fun.decl.Parameters[i].Literal(), arg)
 	}
 
-	return executor.execBlock(fun.decl.Body, env)
+	_, err := executor.execBlock(fun.decl.Body, env)
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
 }
 
 func (fun *GoloxFunction) arity() int {

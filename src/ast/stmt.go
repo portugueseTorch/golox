@@ -1,10 +1,25 @@
 package ast
 
-import "golox/src/lexer"
+import (
+	"golox/src/lexer"
+)
 
 type Stmt interface {
 	stmtMarker()
 }
+
+// return
+type ReturnStatement struct {
+	Expression Expr
+}
+
+func NewReturnStatement(expr Expr) *ReturnStatement {
+	return &ReturnStatement{
+		Expression: expr,
+	}
+}
+
+func (t *ReturnStatement) stmtMarker() {}
 
 // funcDecl - function declarations
 type FunctionStatement struct {

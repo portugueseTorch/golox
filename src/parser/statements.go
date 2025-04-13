@@ -115,10 +115,25 @@ func (parser *Parser) statement() (ast.Stmt, error) {
 		return parser.whileStatement()
 	} else if parser.matches(lexer.FOR) {
 		return parser.forStatement()
+	} else if parser.matches(lexer.RETURN) {
+		return parser.returnStatement()
 	}
 
 	// --- parse regular statement
 	return parser.expressionStatement()
+}
+
+func (parser *Parser) returnStatement() (ast.Stmt, error) {
+	expr, err := parser.expression()
+	if err != nil {
+		return nil, err
+	}
+
+	if !parser.matches(lexer.SEMICOLON) {
+		return nil, NewParsingError(parser.peek(), fmt.Sprintf("expected ';' but got %s", parser.peek().Type()))
+	}
+
+	return ast.NewReturnStatement(expr), nil
 }
 
 func (parser *Parser) forStatement() (ast.Stmt, error) {

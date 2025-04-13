@@ -57,9 +57,20 @@ func (exec *Executor) execStatement(stmt ast.Stmt) (any, error) {
 		return exec.execWhileStatement(s)
 	case *ast.ForStatement:
 		return exec.execForStatement(s)
+	case *ast.ReturnStatement:
+		return exec.execReturnStatement(s)
 	}
 
 	return nil, nil
+}
+
+func (exec *Executor) execReturnStatement(s *ast.ReturnStatement) (any, error) {
+	ret, err := exec.execExpr(s.Expression)
+	if err != nil {
+		return nil, err
+	}
+
+	panic(NewReturnValue(ret))
 }
 
 func (exec *Executor) execFunctionStatement(s *ast.FunctionStatement) (any, error) {
