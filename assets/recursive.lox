@@ -1,0 +1,8 @@
+fun recursiveFib(depth, l, r) {
+  print l + r;
+  if (depth > 0) {
+    recursiveFib(depth - 1, r, l + r);
+  }
+}
+
+recursiveFib(5, 0, 1);
