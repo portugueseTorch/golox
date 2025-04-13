@@ -169,7 +169,7 @@ func (parser *Parser) unary() (ast.Expr, error) {
 		return ast.NewUnary(operator, expr), nil
 	}
 
-	return parser.primary()
+	return parser.call()
 }
 
 func (parser *Parser) call() (ast.Expr, error) {

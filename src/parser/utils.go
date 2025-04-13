@@ -36,6 +36,11 @@ func (parser *Parser) matches(tokTypes ...lexer.TokenType) bool {
 	return false
 }
 
+// checks if the current position matches cmp without iterating
+func (parser *Parser) check(cmp lexer.TokenType) bool {
+	return parser.peek().TokenType() == cmp
+}
+
 // returns ths previous token without mutating cur
 func (parser *Parser) prev() lexer.Token {
 	if parser.cur == 0 {

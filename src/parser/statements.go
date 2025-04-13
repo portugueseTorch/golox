@@ -41,14 +41,27 @@ func (parser *Parser) function() (ast.Stmt, error) {
 	if !parser.matches(lexer.LEFT_PAREN) {
 		return nil, NewParsingError(parser.peek(), fmt.Sprintf("expected '(', got %s\n", parser.peek().TokenType()))
 	}
-	params := make([]lexer.Token, 0)
-	for parser.matches(lexer.COMMA) {
-		if len(params) >= 255 {
-			return nil, NewParsingError(parser.peek(), "functions cannot take more than 255 parameters")
-		}
 
-		params = append(params, parser.prev())
+	params := make([]lexer.Token, 0)
+	// --- if the next token is not a ')', parse parameters
+	if !parser.check(lexer.RIGHT_PAREN) {
+		for {
+			if len(params) >= 255 {
+				return nil, NewParsingError(parser.peek(), "functions cannot take more than 255 parameters")
+			}
+
+			// --- check that next token is identifier and append it to params
+			if !parser.matches(lexer.IDENTIFIER) {
+				return nil, NewParsingError(parser.peek(), fmt.Sprintf("expected IDENTIFIER, got %s\n", parser.peek().TokenType()))
+			}
+			params = append(params, parser.prev())
+
+			if !parser.matches(lexer.COMMA) {
+				break
+			}
+		}
 	}
+
 	if !parser.matches(lexer.RIGHT_PAREN) {
 		return nil, NewParsingError(parser.peek(), fmt.Sprintf("expected ')', got %s\n", parser.peek().TokenType()))
 	}
@@ -267,7 +280,7 @@ func (parser *Parser) expressionStatement() (ast.Stmt, error) {
 
 	// if the next token is not a semicolon, this is an invalid expression
 	if !parser.matches(lexer.SEMICOLON) {
-		return nil, NewParsingError(parser.peek(), "invalid token: expected ';'")
+		return nil, NewParsingError(parser.peek(), fmt.Sprintf("expected ';' but got %s\n", parser.peek().Type()))
 	}
 
 	return ast.NewExpressionStatement(expr), nil
