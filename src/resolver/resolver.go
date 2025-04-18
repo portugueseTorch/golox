@@ -1,7 +1,7 @@
 package resolver
 
 import (
-	"go/ast"
+	"golox/src/ast"
 	"golox/src/executor"
 )
 
@@ -17,33 +17,8 @@ func NewResolver(exec *executor.Executor) Resolver {
 	}
 }
 
-func (resolver *Resolver) Resolve(stmts []ast.Stmt) {
-	resolver.resolveStatements(stmts)
-}
-
-func (resolver *Resolver) resolveStatements(stmts []ast.Stmt) {
-	resolver.beginScope()
-	for _, stmt := range stmts {
-		resolver.resolveStatement(stmt)
-	}
-	resolver.endScope()
-}
-
-func (resolver *Resolver) resolveStatement(stmt ast.Stmt) {
-	switch s := stmt.(type) {
-	case *ast.BlockStmt:
-		resolver.resolveBlockStatement(s)
-		break
-	case *ast.VariableStatement:
-		resolver.resolveVariableStatement(s)
-		break
-	}
-}
-
-func (resolver *Resolver) resolveBlockStatement(s *ast.BlockStmt) {
-	resolver.beginScope()
-	resolver.resolveStatements(s.List)
-	resolver.endScope()
+func (resolver *Resolver) Resolve(stmts []ast.Stmt) (any, error) {
+	return resolver.resolveStatements(stmts)
 }
 
 func (resolver *Resolver) beginScope() {
