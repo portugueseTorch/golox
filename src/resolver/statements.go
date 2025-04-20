@@ -26,8 +26,41 @@ func (resolver *Resolver) resolveStmt(stmt ast.Stmt) (any, error) {
 		return resolver.resolveFunctionStatement(s)
 	case *ast.ExpressionStatement:
 		return resolver.resolveExpr(s.Expression)
+	case *ast.ConditionalStatement:
+		return resolver.resolveConditionalExpression(s)
+	case *ast.PrintStatement:
+		return resolver.resolvePrintExpression(s)
+	case *ast.ReturnStatement:
+		return resolver.resolveReturnExpression(s)
+	case *ast.WhileStatement:
+		return resolver.resolveWhileStatement(s)
 	}
 
+	return nil, nil
+}
+
+func (resolver *Resolver) resolveWhileStatement(s *ast.WhileStatement) (any, error) {
+	resolver.resolveExpr(s.Condition)
+	return resolver.resolveStmt(s.Body)
+}
+
+func (resolver *Resolver) resolveReturnExpression(s *ast.ReturnStatement) (any, error) {
+	if s.Expression != nil {
+		return resolver.resolveExpr(s.Expression)
+	}
+	return nil, nil
+}
+
+func (resolver *Resolver) resolvePrintExpression(s *ast.PrintStatement) (any, error) {
+	return resolver.resolveExpr(s.Expression)
+}
+
+func (resolver *Resolver) resolveConditionalExpression(s *ast.ConditionalStatement) (any, error) {
+	resolver.resolveStmt(s.IfBranch)
+	resolver.resolveExpr(s.Condition)
+	if s.ElseBranch != nil {
+		resolver.resolveStmt(s.ElseBranch)
+	}
 	return nil, nil
 }
 

@@ -11,13 +11,48 @@ func (resolver *Resolver) resolveExpr(expr ast.Expr) (any, error) {
 	case *ast.Variable:
 		return resolver.resolveVariableExpression(s)
 	case *ast.Assignment:
-		return resolver.resolveExpressionExpression(s)
+		return resolver.resolveAssignmentExpression(s)
+	case *ast.Binary:
+		return resolver.resolveBinaryExpression(s)
+	case *ast.Call:
+		return resolver.resolveCallExpression(s)
+	case *ast.Grouping:
+		return resolver.resolveGroupingExpression(s)
+	case *ast.Logical:
+		return resolver.resolveLogicalExpression(s)
+	case *ast.Unary:
+		return resolver.resolveExpr(s.Expression)
+	case *ast.Literal:
+		return nil, nil
 	}
 
 	return nil, nil
 }
 
-func (resolver *Resolver) resolveExpressionExpression(s *ast.Assignment) (any, error) {
+func (resolver *Resolver) resolveLogicalExpression(s *ast.Logical) (any, error) {
+	resolver.resolveExpr(s.Left)
+	return resolver.resolveExpr(s.Right)
+}
+
+func (resolver *Resolver) resolveGroupingExpression(s *ast.Grouping) (any, error) {
+	return resolver.resolveExpr(s.Expression)
+}
+
+func (resolver *Resolver) resolveCallExpression(s *ast.Call) (any, error) {
+	resolver.resolveExpr(s.Callee)
+
+	for _, arg := range s.Args {
+		resolver.resolveExpr(arg)
+	}
+	return nil, nil
+}
+
+func (resolver *Resolver) resolveBinaryExpression(s *ast.Binary) (any, error) {
+	resolver.resolveExpr(s.Left)
+	return resolver.resolveExpr(s.Right)
+}
+
+func (resolver *Resolver) resolveAssignmentExpression(s *ast.Assignment) (any, error) {
 	_, err := resolver.resolveExpr(s.Value)
 	if err != nil {
 		return nil, err
