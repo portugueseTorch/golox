@@ -79,9 +79,11 @@ func (resolver *Resolver) resolveFunction(s *ast.FunctionStatement) (any, error)
 		resolver.define(tok.Literal())
 	}
 
-	_, err := resolver.resolveStatements(s.Body)
-	if err != nil {
-		return nil, err
+	for _, stmt := range s.Body {
+		_, err := resolver.resolveStmt(stmt)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	resolver.endScope()
