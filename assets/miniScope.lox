@@ -1,0 +1,7 @@
+var a = "global a";
+{
+  var b = "hehe";
+  print b;
+  print a;
+}
+print a;
