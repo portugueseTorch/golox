@@ -6,6 +6,7 @@ import (
 	"golox/src/executor"
 	"golox/src/lexer"
 	"golox/src/parser"
+	"golox/src/resolver"
 	"os"
 )
 
@@ -24,6 +25,13 @@ func run(input string, env *executor.Environment) (any, error) {
 	}
 
 	executor := executor.NewExecutor(parsed, env)
+	resolver := resolver.NewResolver(executor)
+	_, err = resolver.Resolve(parsed)
+	if err != nil {
+		fmt.Printf("%s", err)
+		return nil, nil
+	}
+
 	_, err = executor.Execute()
 	if err != nil {
 		fmt.Println(err.Error())
