@@ -103,9 +103,11 @@ func (resolver *Resolver) resolveVariableStatement(s *ast.VariableStatement) (an
 
 func (resolver *Resolver) resolveBlockStatement(s *ast.BlockStatement) (any, error) {
 	resolver.beginScope()
-	_, err := resolver.resolveStatements(s.Statements)
-	if err != nil {
-		return nil, err
+	for _, stmt := range s.Statements {
+		_, err := resolver.resolveStmt(stmt)
+		if err != nil {
+			return nil, err
+		}
 	}
 	resolver.endScope()
 	return nil, nil

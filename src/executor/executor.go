@@ -3,6 +3,7 @@ package executor
 import (
 	"fmt"
 	"golox/src/ast"
+	"golox/src/lexer"
 	"strconv"
 )
 
@@ -10,6 +11,7 @@ type Executor struct {
 	statements []ast.Stmt
 	env        *Environment
 	global     *Environment
+	locals     map[ast.Expr]int
 }
 
 func NewExecutor(stmt []ast.Stmt, env *Environment) *Executor {
@@ -20,7 +22,36 @@ func NewExecutor(stmt []ast.Stmt, env *Environment) *Executor {
 		statements: stmt,
 		env:        global,
 		global:     global,
+		locals:     make(map[ast.Expr]int),
 	}
+}
+
+func (exec *Executor) Set(key ast.Expr, level int) {
+	exec.locals[key] = level
+}
+
+func (exec *Executor) setAt(level int, key lexer.Token, value any) (any, error) {
+	var env *Environment = exec.env
+	for count := 0; count < level; level++ {
+		env = env.enclosing
+	}
+
+	env.Set(key.Literal(), value)
+	return nil, nil
+}
+
+func (exec *Executor) getAt(level int, key lexer.Token) (any, error) {
+	var env *Environment = exec.env
+	for count := 0; count < level && env != nil; count++ {
+		env = env.enclosing
+	}
+	assert(env != nil, "Expected env to not be nil")
+
+	v, ok := env.store[key.Literal()]
+	if !ok {
+		return nil, NewRuntimeError(key, fmt.Sprintf("undefined variable name '%s'", key.Literal()))
+	}
+	return v, nil
 }
 
 // main executor function
@@ -212,21 +243,21 @@ func (exec *Executor) execPrintStatement(s *ast.PrintStatement) (any, error) {
 func (exec *Executor) execExpr(expr ast.Expr) (any, error) {
 	switch e := expr.(type) {
 	case *ast.Call:
-		return exec.execCall(*e)
+		return exec.execCall(e)
 	case *ast.Logical:
-		return exec.execLogical(*e)
+		return exec.execLogical(e)
 	case *ast.Binary:
-		return exec.execBinary(*e)
+		return exec.execBinary(e)
 	case *ast.Unary:
-		return exec.execUnary(*e)
+		return exec.execUnary(e)
 	case *ast.Grouping:
-		return exec.execGrouping(*e)
+		return exec.execGrouping(e)
 	case *ast.Literal:
-		return exec.execLiteral(*e)
+		return exec.execLiteral(e)
 	case *ast.Variable:
-		return exec.execVariable(*e)
+		return exec.execVariable(e)
 	case *ast.Assignment:
-		return exec.execAssignment(*e)
+		return exec.execAssignment(e)
 	}
 
 	return nil, nil

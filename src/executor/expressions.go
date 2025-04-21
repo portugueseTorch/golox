@@ -6,7 +6,7 @@ import (
 	"golox/src/lexer"
 )
 
-func (exec *Executor) execCall(call ast.Call) (any, error) {
+func (exec *Executor) execCall(call *ast.Call) (any, error) {
 	callee, err := exec.execExpr(call.Callee)
 	if err != nil {
 		return nil, err
@@ -36,16 +36,21 @@ func (exec *Executor) execCall(call ast.Call) (any, error) {
 	return callable.call(exec, args)
 }
 
-func (exec *Executor) execAssignment(expr ast.Assignment) (any, error) {
+func (exec *Executor) execAssignment(expr *ast.Assignment) (any, error) {
 	value, err := exec.execExpr(expr.Value)
 	if err != nil {
 		return nil, err
 	}
 
-	return exec.env.Assign(expr.Name, value)
+	level, ok := exec.locals[expr]
+	if ok {
+		return exec.setAt(level, expr.Name, value)
+	} else {
+		return exec.env.Assign(expr.Name, value)
+	}
 }
 
-func (exec *Executor) execLogical(expr ast.Logical) (any, error) {
+func (exec *Executor) execLogical(expr *ast.Logical) (any, error) {
 	left, left_err := exec.execExpr(expr.Left)
 	if left_err != nil {
 		return nil, left_err
@@ -62,7 +67,7 @@ func (exec *Executor) execLogical(expr ast.Logical) (any, error) {
 	return exec.execExpr(expr.Right)
 }
 
-func (exec *Executor) execBinary(expr ast.Binary) (any, error) {
+func (exec *Executor) execBinary(expr *ast.Binary) (any, error) {
 	left, left_err := exec.execExpr(expr.Left)
 	if left_err != nil {
 		return nil, left_err
@@ -94,15 +99,15 @@ func (exec *Executor) execBinary(expr ast.Binary) (any, error) {
 	panic("unreachable")
 }
 
-func (exec *Executor) execLiteral(expr ast.Literal) (any, error) {
+func (exec *Executor) execLiteral(expr *ast.Literal) (any, error) {
 	return expr.Value, nil
 }
 
-func (exec *Executor) execGrouping(expr ast.Grouping) (any, error) {
+func (exec *Executor) execGrouping(expr *ast.Grouping) (any, error) {
 	return exec.execExpr(expr.Expression)
 }
 
-func (exec *Executor) execUnary(expr ast.Unary) (any, error) {
+func (exec *Executor) execUnary(expr *ast.Unary) (any, error) {
 	child, child_err := exec.execExpr(expr.Expression)
 	if child_err != nil {
 		return nil, child_err
@@ -124,8 +129,13 @@ func (exec *Executor) execUnary(expr ast.Unary) (any, error) {
 	panic("unreachable")
 }
 
-func (exec *Executor) execVariable(expr ast.Variable) (any, error) {
-	return exec.env.Get(expr.Name)
+func (exec *Executor) execVariable(expr *ast.Variable) (any, error) {
+	level, ok := exec.locals[expr]
+	if ok {
+		return exec.getAt(level, expr.Name)
+	} else {
+		return exec.global.Get(expr.Name)
+	}
 }
 
 // consider falsy to be only <nil> or false

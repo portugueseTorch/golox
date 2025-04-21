@@ -35,7 +35,6 @@ func (resolver *Resolver) declare(name string) {
 	if !ok {
 		return
 	}
-
 	(*curScope)[name] = false
 }
 

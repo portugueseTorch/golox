@@ -75,10 +75,10 @@ func (resolver *Resolver) resolveVariableExpression(s *ast.Variable) (any, error
 
 func (resolver *Resolver) resolveLocal(name lexer.Token, expr ast.Expr) (any, error) {
 	// --- walk up the scopes until variable is found, and execute
-	for i := len(resolver.scopes.items) - 1; i >= 0; i++ {
+	for i := len(resolver.scopes.items) - 1; i >= 0; i-- {
 		_, exists := resolver.scopes.items[i][name.Literal()]
 		if exists {
-			panic("Unimplemented")
+			resolver.executor.Set(expr, len(resolver.scopes.items)-1-i)
 		}
 	}
 	return nil, nil
